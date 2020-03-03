@@ -33,7 +33,44 @@
                     <target>8</target>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>clean-lib</id>
+                        <phase>clean</phase>
+                        <configuration>
+                            <target>
+                                <delete dir="${basedir}/src/main/webapp/WEB-INF/lib" />
+                                <delete dir="${basedir}/src/main/webapp/WEB-INF/classes" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>copy-lib</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <delete dir="${basedir}/src/main/webapp/WEB-INF/lib" />
+                                <delete dir="${basedir}/src/main/webapp/WEB-INF/classes" />
+                                <copy todir="${basedir}/src/main/webapp/WEB-INF/lib">
+                                    <fileset dir="${basedir}/target/${project.build.finalName}/WEB-INF/lib"/>
+                                </copy>
+                                <copy todir="${basedir}/src/main/webapp/WEB-INF/classes">
+                                    <fileset dir="${basedir}/target/${project.build.finalName}/WEB-INF/classes"/>
+                                </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
