@@ -1,20 +1,20 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" trimDirectiveWhitespaces="true"%>
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Resume Web</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/css/bootstrap.css">
-    <link rel="stylesheet" href="/static/css/bootstrap-theme.css">
-    <link rel="stylesheet" href="/static/css/font-awesome.css">
-    <link rel="stylesheet" href="/static/css/timeline.css">
-    <link rel="stylesheet" href="/static/css/main.css">
-</head>
-  <body>
-    <sitemesh:write property='body'/>
-
-    <script src="/static/js/jquery.js"></script>
-    <script src="/static/js/bootstrap.js"></script>
-    <script src="/static/js/main.js"></script>
-  </body>
+    <head>
+        <title>
+            Resume Web
+        </title>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <jsp:include page="/WEB-INF/section/css.jsp"></jsp:include>
+    </head>
+    <body class="resume">
+        <jsp:include page="/WEB-INF/section/header.jsp"></jsp:include>
+        <jsp:include page="/WEB-INF/section/nav.jsp"></jsp:include>
+        <section class="main">
+            <sitemesh:write property="body"></sitemesh:write>
+        </section>
+        <jsp:include page="/WEB-INF/section/footer.jsp"></jsp:include>
+        <jsp:include page="/WEB-INF/section/js.jsp"></jsp:include>
+    </body>
 </html>
