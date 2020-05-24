@@ -1,12 +1,12 @@
 package com.resume.listener;
 
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 
-@WebListener
+@Component
 public class AppListener implements ServletContextListener {
     private static Logger LOGGER = Logger.getLogger(AppListener.class);
 

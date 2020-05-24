@@ -5,6 +5,7 @@
         <title>
             Resume Web
         </title>
+        <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/favicon.png">
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
         <jsp:include page="/WEB-INF/section/css.jsp"></jsp:include>
     </head>

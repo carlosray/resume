@@ -17,7 +17,7 @@ public class TestDataGenerator {
 
     private static final String PHOTO_PATH = "external/test-data/photos/";
     private static final String CERT_PATH = "external/test-data/certificates/";
-    private static final String MEDIA_DIR = "E:/Projects/resume/src/main/webapp/media";
+    private static final String MEDIA_DIR = "C:/Users/Misha/Desktop/wd/projects/resume/src/main/webapp/media";
     private static final String COUNTRY = "Russia";
     private static final String[] CITIES = {"Krasnodar", "Moscow", "Saint-Petersburg"};
     private static final String[] FOREIGN_LANGUAGES = {"Spanish", "French", "Italian", "German"};
@@ -646,6 +646,9 @@ public class TestDataGenerator {
 
     private static String getInfo() {
         int endIndex = random.nextInt(SENTENCES.size());
+        while (endIndex == 0) {
+            endIndex = random.nextInt(SENTENCES.size());
+        }
         int startIndex = random.nextInt(endIndex);
         if (endIndex - startIndex > 4) {
             endIndex = startIndex + 3;
