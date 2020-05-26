@@ -17,6 +17,8 @@ public class AppFilter implements Filter {
 
     @Value("${application.production}")
     private boolean production;
+    @Value("${application.error-path}")
+    private String errorPath;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -25,27 +27,26 @@ public class AppFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        String requestUrl = httpServletRequest.getRequestURI();
-        httpServletRequest.setAttribute("REQUEST_URL", requestUrl);
-
+        String requestUrl = request.getRequestURI();
+        request.setAttribute("REQUEST_URL", requestUrl);
         try {
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            filterChain.doFilter(request, response);
         } catch (Throwable th) {
             LOGGER.error("Process request failed: " + requestUrl, th);
-            handleException(th, requestUrl, httpServletResponse);
+            handleException(th, requestUrl, response);
         }
 
     }
 
-    private void handleException(Throwable th, String requestUrl, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+    private void handleException(Throwable th, String requestUrl, HttpServletResponse response) throws ServletException, IOException {
         if(production) {
-            if ("/error".equals(requestUrl)) {
+            if (errorPath.equals(requestUrl)) {
                 throw new ServletException(th);
             } else {
-                httpServletResponse.sendRedirect("/error?url="+requestUrl);
+                response.sendRedirect(errorPath+ "?url="+requestUrl);
             }
         } else {
             throw new ServletException(th);

@@ -1,6 +1,7 @@
 package com.resume.configuration;
 
 import com.resume.filter.AppFilter;
+import com.resume.listener.AppListener;
 import org.sitemesh.config.ConfigurableSiteMeshFilter;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.WebApplicationContext;
@@ -19,14 +20,20 @@ public class ResumeWebApplicationInitializer implements WebApplicationInitialize
         WebApplicationContext context = createWebApplicationContext(servletContext);
         registerDispatcherServlet(servletContext, context);
         registerFilters(servletContext, context);
+        registerListeners(servletContext, context);
     }
 
     private void registerFilters(ServletContext servletContext, WebApplicationContext context) {
+        servletContext.addFilter(AppFilter.class.getName(), context.getBean(AppFilter.class))
+                .addMappingForUrlPatterns(null, true, "/*");
         servletContext.addFilter("sitemesh", context.getBean(ConfigurableSiteMeshFilter.class))
                 .addMappingForUrlPatterns(null, true, "/*");
-        servletContext.addFilter(AppFilter.class.getName(), context.getBean(AppFilter.class));
         servletContext.addFilter(CharacterEncodingFilter.class.getName(), new CharacterEncodingFilter("UTF-8", true))
                 .addMappingForUrlPatterns(null, true, "/*");
+    }
+
+    private void registerListeners(ServletContext servletContext, WebApplicationContext context) {
+        servletContext.addListener(context.getBean(AppListener.class));
     }
 
     private WebApplicationContext createWebApplicationContext(ServletContext servletContext) {
