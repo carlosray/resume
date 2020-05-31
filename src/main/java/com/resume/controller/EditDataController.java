@@ -1,11 +1,26 @@
 package com.resume.controller;
 
+import com.resume.entity.SkillCategory;
+import com.resume.repository.SkillCategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 @Controller
 public class EditDataController {
+
+    private SkillCategoryRepository skillCategoryRepository;
+
+    @Autowired
+    public EditDataController(SkillCategoryRepository skillCategoryRepository) {
+        this.skillCategoryRepository = skillCategoryRepository;
+    }
 
     @GetMapping("/my-profile")
     public String getEditMyProfile() {
@@ -33,8 +48,10 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/skills")
-    public String getEditSkills() {
-        return "";
+    public String getEditSkills(Model model) {
+        Iterable<SkillCategory> all = skillCategoryRepository.findAll();
+        model.addAttribute("skillCategories", all);
+        return "edit-skills";
     }
 
     @PostMapping("/edit/skills")
