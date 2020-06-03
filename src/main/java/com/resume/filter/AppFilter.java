@@ -1,5 +1,6 @@
 package com.resume.filter;
 
+import lombok.extern.log4j.Log4j;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
@@ -10,10 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Log4j
 @Component
 @Order(0)
 public class AppFilter implements Filter {
-    private static final Logger LOGGER = Logger.getLogger(AppFilter.class);
 
     @Value("${application.production}")
     private boolean production;
@@ -35,7 +36,7 @@ public class AppFilter implements Filter {
         try {
             filterChain.doFilter(request, response);
         } catch (Throwable th) {
-            LOGGER.error("Process request failed: " + requestUrl, th);
+            log.error("Process request failed: " + requestUrl, th);
             handleException(th, requestUrl, response);
         }
 

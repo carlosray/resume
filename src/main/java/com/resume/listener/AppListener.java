@@ -1,18 +1,20 @@
 package com.resume.listener;
 
+import lombok.extern.log4j.Log4j;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+@Log4j
 @Component
 public class AppListener implements ServletContextListener {
-    private static Logger LOGGER = Logger.getLogger(AppListener.class);
+
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        LOGGER.info("\n<--------------------------------------------------------------------------->\n" +
+        log.info("\n<--------------------------------------------------------------------------->\n" +
                 "<------------------------------APPLICATION STARTED-------------------------->\n" +
                 "<--------------------------------------------------------------------------->");
 
@@ -20,7 +22,7 @@ public class AppListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        LOGGER.info("\n<--------------------------------------------------------------------------->\n" +
+        log.info("\n<--------------------------------------------------------------------------->\n" +
                 "<------------------------------APPLICATION DESTROYED------------------------>\n" +
                 "<--------------------------------------------------------------------------->");
     }

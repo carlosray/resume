@@ -1,9 +1,10 @@
+<%--@elvariable id="profile" type="com.resume.entity.Profile"--%>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 
 <div class="panel panel-primary">
 	<a href="/edit"><img class="img-responsive photo" src="/media/avatar/3f95a777-2194-45bd-b1bd-a9ee2b339802.jpg" alt="photo"></a>
 	<h1 class="text-center">
-		<a style="color: black;" href="/edit">${fullName}</a>
+		<a style="color: black;" href="/edit">${profile.firstName}</a>
 	</h1>
 	<h6 class="text-center">
 		<strong>Krasnodar, Russia</strong>
