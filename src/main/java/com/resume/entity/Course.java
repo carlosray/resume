@@ -1,14 +1,15 @@
 package com.resume.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.log4j.Log4j;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(exclude = "profile")
 @NoArgsConstructor
 @Entity
 public class Course implements Serializable {

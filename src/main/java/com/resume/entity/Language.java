@@ -2,13 +2,14 @@ package com.resume.entity;
 
 import com.resume.model.LanguageLevel;
 import com.resume.model.LanguageType;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(exclude = "profile")
 @NoArgsConstructor
 @Entity
 public class Language implements Serializable {
