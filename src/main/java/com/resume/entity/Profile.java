@@ -76,6 +76,7 @@ public class Profile implements Serializable {
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Practic> practics;
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OrderBy("finishYear DESC, beginYear DESC, id DESC")
     private List<Education> educations;
 
     @PostLoad
