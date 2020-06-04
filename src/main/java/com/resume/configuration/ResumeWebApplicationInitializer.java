@@ -3,6 +3,7 @@ package com.resume.configuration;
 import com.resume.filter.AppFilter;
 import com.resume.listener.AppListener;
 import org.sitemesh.config.ConfigurableSiteMeshFilter;
+import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -26,9 +27,9 @@ public class ResumeWebApplicationInitializer implements WebApplicationInitialize
     private void registerFilters(ServletContext servletContext, WebApplicationContext context) {
         servletContext.addFilter(AppFilter.class.getName(), context.getBean(AppFilter.class))
                 .addMappingForUrlPatterns(null, true, "/*");
-        servletContext.addFilter("sitemesh", context.getBean(ConfigurableSiteMeshFilter.class))
-                .addMappingForUrlPatterns(null, true, "/*");
         servletContext.addFilter(CharacterEncodingFilter.class.getName(), new CharacterEncodingFilter("UTF-8", true))
+                .addMappingForUrlPatterns(null, true, "/*");
+        servletContext.addFilter("sitemesh", context.getBean(ConfigurableSiteMeshFilter.class))
                 .addMappingForUrlPatterns(null, true, "/*");
     }
 

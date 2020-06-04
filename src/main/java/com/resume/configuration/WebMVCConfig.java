@@ -1,11 +1,12 @@
 package com.resume.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor;
+import org.springframework.web.servlet.config.annotation.*;
+
+import javax.persistence.EntityManagerFactory;
 
 @Configuration
 @EnableWebMvc
@@ -20,6 +21,15 @@ public class WebMVCConfig implements WebMvcConfigurer {
         resolver.setSuffix(".jsp");
         return resolver;
     }*/
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        OpenEntityManagerInViewInterceptor interceptor = new OpenEntityManagerInViewInterceptor();
+        interceptor.setEntityManagerFactory(entityManagerFactory);
+        registry.addWebRequestInterceptor(interceptor);
+    }
 
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {

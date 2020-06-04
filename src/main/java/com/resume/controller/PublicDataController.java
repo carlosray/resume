@@ -11,8 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.Period;
+
 @Log4j
 @Controller
+@Transactional
 public class PublicDataController {
 
     private NameService nameService;
@@ -27,9 +32,17 @@ public class PublicDataController {
     @GetMapping("/{uid}")
     public String getProfile(@PathVariable String uid, Model model) {
         Profile byUid = profileRepository.findByUid(uid);
-        if (byUid != null)
-        model.addAttribute("profile", byUid);
+        if (byUid != null) {
+            model.addAttribute("profile", byUid);
+        }
         return "profile";
+    }
+
+    public int calculateAge(
+            LocalDate birthDate,
+            LocalDate currentDate) {
+        //validate inputs ...
+        return Period.between(birthDate, currentDate).getYears();
     }
 
     @GetMapping("/welcome")

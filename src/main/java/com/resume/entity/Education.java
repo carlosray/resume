@@ -21,9 +21,9 @@ public class Education implements Serializable {
     @Column(length = 100)
     private String summary;
     @Column(name = "begin_year")
-    private int beginYear;
+    private Integer beginYear;
     @Column(name = "finish_year")
-    private int finishYear;
+    private Integer finishYear;
     @Column(length = 2147483647)
     private String university;
     @Column

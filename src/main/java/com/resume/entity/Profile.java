@@ -1,10 +1,15 @@
 package com.resume.entity;
 
+import jdk.vm.ci.meta.Local;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +37,8 @@ public class Profile implements Serializable {
     @Column(name = "birth_day")
     @Temporal(TemporalType.DATE)
     private Date birthDay;
+    @Transient
+    private Integer age;
     @Column(length = 60)
     private String country;
     @Column(length = 100)
@@ -71,4 +78,22 @@ public class Profile implements Serializable {
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Education> educations;
 
+    @PostLoad
+    void postLoad() {
+        LocalDate localBirthDate = convertToLocalDateViaInstant(this.birthDay);
+        this.age = calculateAge(localBirthDate, LocalDate.now());
+    }
+
+    public Integer calculateAge(
+            LocalDate birthDate,
+            LocalDate currentDate) {
+        //validate inputs ...
+        return Period.between(birthDate, currentDate).getYears();
+    }
+
+    public LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
+        return Instant.ofEpochMilli(dateToConvert.getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
 }

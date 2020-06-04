@@ -1,25 +1,26 @@
 <%--@elvariable id="profile" type="com.resume.entity.Profile"--%>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
-
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <div class="panel panel-primary">
-	<a href="/edit"><img class="img-responsive photo" src="/media/avatar/3f95a777-2194-45bd-b1bd-a9ee2b339802.jpg" alt="photo"></a>
+	<a href="${pageContext.request.contextPath}/edit"><img class="img-responsive photo" src="<c:out value="${profile.largePhoto}"/>" alt="photo"></a>
 	<h1 class="text-center">
-		<a style="color: black;" href="/edit">${profile.firstName}</a>
+		<a style="color: black;" href="${pageContext.request.contextPath}/edit"><c:out value="${profile.firstName} ${profile.lastName}"/></a>
 	</h1>
 	<h6 class="text-center">
-		<strong>Krasnodar, Russia</strong>
+		<strong><c:out value="${profile.city}"/>, <c:out value="${profile.country}"/></strong>
 	</h6>
 	<h6 class="text-center">
-		<strong>Age:</strong> 27, <strong>Birthday: </strong> Feb 26, 1989
+		<strong>Age: </strong>${profile.age}, <strong>Birthday: </strong> <fmt:formatDate value="${profile.birthDay}" pattern="MMM dd, yyyy" />
 	</h6>
 	<div class="list-group contacts">
-		<a class="list-group-item" href="tel:+79530845389"><i class="fa fa-phone"></i> +79530845389</a>
-		<a class="list-group-item" href="mailto:bertram-gilfoyle@gmail.com"><i class="fa fa-envelope"></i> bertram-gilfoyle@gmail.com</a>
-		<a class="list-group-item" href="javascript:void(0);"><i class="fa fa-skype"></i>bertram-gilfoyle</a>
-		<a target="_blank" class="list-group-item" href="https://vk.com/bertram-gilfoyle"><i class="fa fa-vk"></i> https://vk.com/bertram-gilfoyle</a>
-		<a target="_blank" class="list-group-item" href="https://facebook.com/bertram-gilfoyle"><i class="fa fa-facebook"></i> https://facebook.com/bertram-gilfoyle</a>
-		<a target="_blank" class="list-group-item" href="https://linkedin.com/bertram-gilfoyle"><i class="fa fa-linkedin"></i> https://linkedin.com/bertram-gilfoyle</a>
-		<a target="_blank" class="list-group-item" href="https://github.com/bertram-gilfoyle"><i class="fa fa-github"></i> https://github.com/bertram-gilfoyle</a>
-		<a target="_blank" class="list-group-item" href="https://stackoverflow.com/bertram-gilfoyle"><i class="fa fa-stack-overflow"></i> https://stackoverflow.com/bertram-gilfoyle</a>
+		<a class="list-group-item" href="tel:<c:out value="${profile.contactsProfile.phone}"/>"><i class="fa fa-phone"></i> <c:out value="${profile.contactsProfile.phone}" default="-"/></a>
+		<a class="list-group-item" href="mailto:<c:out value="${profile.contactsProfile.email}"/>"><i class="fa fa-envelope"></i> <c:out value="${profile.contactsProfile.email}" default="-"/></a>
+		<a class="list-group-item" href="javascript:void(0);"><i class="fa fa-skype"></i><c:out value="${profile.contactsProfile.skype}" default="-"/></a>
+		<a target="_blank" class="list-group-item" href=<c:out value="${profile.contactsProfile.vkontakte}"/>><i class="fa fa-vk"></i> <c:out value="${profile.contactsProfile.vkontakte}" default="-"/></a>
+		<a target="_blank" class="list-group-item" href=<c:out value="${profile.contactsProfile.facebook}"/>><i class="fa fa-facebook"></i> <c:out value="${profile.contactsProfile.facebook}" default="-"/></a>
+		<a target="_blank" class="list-group-item" href=<c:out value="${profile.contactsProfile.linkedin}"/>><i class="fa fa-linkedin"></i> <c:out value="${profile.contactsProfile.linkedin}" default="-"/></a>
+		<a target="_blank" class="list-group-item" href=<c:out value="${profile.contactsProfile.github}"/>><i class="fa fa-github"></i> <c:out value="${profile.contactsProfile.github}" default="-"/></a>
+		<a target="_blank" class="list-group-item" href=<c:out value="${profile.contactsProfile.stackoverflow}"/>><i class="fa fa-stack-overflow"></i> <c:out value="${profile.contactsProfile.stackoverflow}" default="-"/></a>
 	</div>
 </div>
