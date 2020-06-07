@@ -12,8 +12,10 @@
     <body class="resume">
         <jsp:include page="/WEB-INF/section/header.jsp"></jsp:include>
         <jsp:include page="/WEB-INF/section/nav.jsp"></jsp:include>
-        <section class="main">
+        <section class="main container">
+            <div class="row">
             <sitemesh:write property="body"></sitemesh:write>
+            </div>
         </section>
         <jsp:include page="/WEB-INF/section/footer.jsp"></jsp:include>
         <jsp:include page="/WEB-INF/section/js.jsp"></jsp:include>

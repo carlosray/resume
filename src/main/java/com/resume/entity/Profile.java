@@ -1,6 +1,5 @@
 package com.resume.entity;
 
-import jdk.vm.ci.meta.Local;
 import lombok.*;
 
 import javax.persistence.*;
@@ -96,5 +95,10 @@ public class Profile implements Serializable {
         return Instant.ofEpochMilli(dateToConvert.getTime())
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
+    }
+
+    @Transient
+    public String getFullName() {
+        return String.format("%s %s", this.firstName, this.lastName);
     }
 }

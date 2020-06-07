@@ -5,15 +5,17 @@ import com.resume.repository.ProfileRepository;
 import com.resume.service.NameService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
-import java.time.Period;
 
 @Log4j
 @Controller
@@ -29,25 +31,31 @@ public class PublicDataController {
         this.profileRepository = profileRepository;
     }
 
-    @GetMapping("/{uid}")
+    @RequestMapping("/{uid}")
     public String getProfile(@PathVariable String uid, Model model) {
         Profile byUid = profileRepository.findByUid(uid);
-        if (byUid != null) {
-            model.addAttribute("profile", byUid);
+        if (byUid == null) {
+            return "profile-not-found";
         }
+        model.addAttribute("profile", byUid);
         return "profile";
     }
 
-    public int calculateAge(
-            LocalDate birthDate,
-            LocalDate currentDate) {
-        //validate inputs ...
-        return Period.between(birthDate, currentDate).getYears();
+    @RequestMapping("/welcome")
+    public String getWelcome(@Value("${profiles.perPage}") int profilesPerPage, Model model) {
+        PageRequest pageRequest = PageRequest.of(0, profilesPerPage, Sort.by("id").descending());
+        Page<Profile> profilePage = profileRepository.findAll(pageRequest);
+        model.addAttribute("profilePage", profilePage);
+        model.addAttribute("profiles", profilePage.getContent());
+        return "welcome";
     }
 
-    @GetMapping("/welcome")
-    public String getWelcome() {
-        return "welcome";
+    @GetMapping("/fragment/more")
+    public String getMoreProfiles(@RequestParam("page") int page, @Value("${profiles.perPage}") int profilesPerPage, Model model) {
+        PageRequest pageRequest = PageRequest.of(page, profilesPerPage, Sort.by("id").descending());
+        Page<Profile> profilePage = profileRepository.findAll(pageRequest);
+        model.addAttribute("profiles", profilePage.getContent());
+        return "fragment/profile-items";
     }
 
     @GetMapping("/search")
