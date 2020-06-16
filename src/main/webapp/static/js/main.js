@@ -115,38 +115,38 @@ var resume = {
 		});
 	},
 
-	// ui : {
-	// 	// http://handlebarsjs.com/
-	// 	template : null,
-	//
-	// 	getTemplate : function() {
-	// 		if (resume.ui.template == null) {
-	// 			var source = $("#ui-block-template").html();
-	// 			resume.ui.template = Handlebars.compile(source);
-	// 		}
-	// 		return resume.ui.template;
-	// 	},
-	//
-	// 	addBlock : function() {
-	// 		var template = resume.ui.getTemplate();
-	// 		var container = $('#ui-block-container');
-	// 		var blockIndex = container.find('.ui-item').length;
-	// 		var context = {
-	// 			blockIndex : blockIndex
-	// 		};
-	// 		container.append(template(context));
-	//
-	// 		resume.createDatePicker();
-	// 		container.find('input.level-slider').slider();
-	// 	},
-	//
-	// 	updateSelect : function(thisObj) {
-	// 		if(thisObj.val() == '') {
-	// 			var idSelectRef = thisObj.attr('data-ref-select');
-	// 			$('#'+idSelectRef).val('');
-	// 		}
-	// 	}
-	// },
+	ui : {
+		// http://handlebarsjs.com/
+		template : null,
+
+		getTemplate : function() {
+			if (resume.ui.template == null) {
+				var source = $("#ui-block-template").html();
+				resume.ui.template = Handlebars.compile(source);
+			}
+			return resume.ui.template;
+		},
+
+		addBlock : function() {
+			var template = resume.ui.getTemplate();
+			var container = $('#ui-block-container');
+			var blockIndex = container.find('.ui-item').length;
+			var context = {
+				blockIndex : blockIndex
+			};
+			container.append(template(context));
+
+			resume.createDatePicker();
+			container.find('input.level-slider').slider();
+		},
+
+		updateSelect : function(thisObj) {
+			if(thisObj.val() == '') {
+				var idSelectRef = thisObj.attr('data-ref-select');
+				$('#'+idSelectRef).val('');
+			}
+		}
+	},
 
 	// certificates : {
 	// 	showUploadDialog : function() {

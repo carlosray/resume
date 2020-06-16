@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Setter
 @EqualsAndHashCode(exclude = "profile")
 @NoArgsConstructor
+@ToString
 @Entity
 public class Skill implements Serializable {
     private static final long serialVersionUID = 1416530477224390885L;

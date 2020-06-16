@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Setter
 @EqualsAndHashCode(exclude = "profile")
 @NoArgsConstructor
+@ToString(exclude = "profile")
 @Entity
 @Table(name = "profile_restore")
 public class ProfileRestore implements Serializable {

@@ -10,6 +10,7 @@ import java.util.Date;
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = "profile")
+@ToString(exclude = "profile")
 @NoArgsConstructor
 @Entity
 public class Course implements Serializable {

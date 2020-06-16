@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = "profile")
+@ToString(exclude = "profile")
 @NoArgsConstructor
 @Entity
 public class Hobby implements Serializable {

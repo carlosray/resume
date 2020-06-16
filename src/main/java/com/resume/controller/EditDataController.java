@@ -1,25 +1,36 @@
 package com.resume.controller;
 
-import com.resume.entity.SkillCategory;
+import com.resume.entity.Profile;
+import com.resume.entity.Skill;
+import com.resume.form.SkillForm;
+import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.Arrays;
-import java.util.Collections;
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 @Controller
+@Log4j
 public class EditDataController {
 
     private SkillCategoryRepository skillCategoryRepository;
+    private ProfileRepository profileRepository;
 
     @Autowired
-    public EditDataController(SkillCategoryRepository skillCategoryRepository) {
+    public EditDataController(SkillCategoryRepository skillCategoryRepository, ProfileRepository profileRepository) {
         this.skillCategoryRepository = skillCategoryRepository;
+        this.profileRepository = profileRepository;
     }
 
     @GetMapping("/my-profile")
@@ -49,14 +60,31 @@ public class EditDataController {
 
     @GetMapping("/edit/skills")
     public String getEditSkills(Model model) {
-        Iterable<SkillCategory> all = skillCategoryRepository.findAll();
-        model.addAttribute("skillCategories", all);
-        return "edit-skills";
+        //TODO изменить id профиля на текущего пользователя
+        Optional<Profile> byId = profileRepository.findById(49L);
+        SkillForm skillForm = new SkillForm();
+        byId.ifPresent(profile -> {
+            skillForm.setSkills(profile.getSkills());
+        });
+        model.addAttribute("skillForm", skillForm);
+        model.addAttribute("skillCategories", skillCategoryRepository.findAll());
+        return "edit/skills";
     }
 
     @PostMapping("/edit/skills")
-    public String editSkills() {
-        return "";
+    public String editSkills(@Valid @ModelAttribute("skillForm") SkillForm skillForm, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            model.addAttribute("skillCategories", skillCategoryRepository.findAll());
+            return "edit/skills";
+        }
+        List<Skill> skills = skillForm.getSkills();
+        //TODO изменить id профиля на текущего пользователя
+        profileRepository.findById(49L).ifPresent(profile -> {
+            profile.setSkills(skills);
+            profileRepository.save(profile);
+        });
+        return "redirect:/";
     }
 
     @GetMapping("/edit/practics")

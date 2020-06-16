@@ -87,7 +87,6 @@ public class Profile implements Serializable {
     public Integer calculateAge(
             LocalDate birthDate,
             LocalDate currentDate) {
-        //validate inputs ...
         return Period.between(birthDate, currentDate).getYears();
     }
 
