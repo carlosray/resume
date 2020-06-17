@@ -4,7 +4,6 @@
 <%@ taglib prefix="resume" tagdir="/WEB-INF/tags" %>
 
 <%@ attribute name="index" required="true" type="java.lang.Object" %>
-<%@ attribute name="skill" required="false" type="com.resume.entity.Skill" %>
 
 <div id="ui-item-${index}" class="row ui-item skill-item">
     <div class="col-xs-5 col-sm-4 col-md-2 form-group">
@@ -23,9 +22,4 @@
     </div>
 </div>
 <div class="row skill-delim">
-    <div class="col-xs-offset-5 col-sm-offset-4 col-md-offset-2 col-xs-7 col-sm-8 col-md-10" style="padding-left:0px;">
-        <c:if test="${skill != null }">
-            <%--		<resume:form-error path="items[${index }].value" displayIcon="false" />--%>
-        </c:if>
-    </div>
 </div>

@@ -1,7 +1,9 @@
 package com.resume.controller;
 
+import com.resume.entity.Practic;
 import com.resume.entity.Profile;
 import com.resume.entity.Skill;
+import com.resume.form.PracticsForm;
 import com.resume.form.SkillForm;
 import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -26,6 +30,8 @@ public class EditDataController {
 
     private SkillCategoryRepository skillCategoryRepository;
     private ProfileRepository profileRepository;
+    //TODO изменить id профиля на текущего пользователя
+    private final static Long CURRENT_PROFILE_ID = 49L;
 
     @Autowired
     public EditDataController(SkillCategoryRepository skillCategoryRepository, ProfileRepository profileRepository) {
@@ -60,8 +66,7 @@ public class EditDataController {
 
     @GetMapping("/edit/skills")
     public String getEditSkills(Model model) {
-        //TODO изменить id профиля на текущего пользователя
-        Optional<Profile> byId = profileRepository.findById(49L);
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         SkillForm skillForm = new SkillForm();
         byId.ifPresent(profile -> {
             skillForm.setSkills(profile.getSkills());
@@ -79,8 +84,7 @@ public class EditDataController {
             return "edit/skills";
         }
         List<Skill> skills = skillForm.getSkills();
-        //TODO изменить id профиля на текущего пользователя
-        profileRepository.findById(49L).ifPresent(profile -> {
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
             profile.setSkills(skills);
             profileRepository.save(profile);
         });
@@ -88,13 +92,40 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/practics")
-    public String getEditPractics() {
-        return "";
+    public String getEditPractics(Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        PracticsForm practicsForm = new PracticsForm();
+        byId.ifPresent(profile -> {
+            practicsForm.setPractics(profile.getPractics());
+        });
+        model.addAttribute("practicsForm", practicsForm);
+        model.addAttribute("years", prepareYearsList());
+        return "edit/practics";
+    }
+
+    private List<Integer> prepareYearsList() {
+        Year beginYear = Year.of(2000);
+        Year endYear = Year.now();
+        List<Integer> years = new ArrayList<>();
+        while (beginYear.isBefore(endYear) || beginYear.equals(endYear)) {
+            years.add(beginYear.getValue());
+            beginYear = beginYear.plusYears(1);
+        }
+        return years;
     }
 
     @PostMapping("/edit/practics")
-    public String editPractics() {
-        return "";
+    public String editPractics(@Valid @ModelAttribute("practicsForm") PracticsForm practicsForm, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            return "edit/skills";
+        }
+        List<Practic> practics = practicsForm.getPractics();
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+            profile.setPractics(practics);
+            profileRepository.save(profile);
+        });
+        return "redirect:/";
     }
 
     @GetMapping("/edit/certificates")

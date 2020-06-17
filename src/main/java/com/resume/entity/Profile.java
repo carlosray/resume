@@ -79,7 +79,7 @@ public class Profile implements Serializable {
     private List<Education> educations;
 
     @PostLoad
-    void postLoad() {
+    void postLoadAge() {
         LocalDate localBirthDate = convertToLocalDateViaInstant(this.birthDay);
         this.age = calculateAge(localBirthDate, LocalDate.now());
     }
@@ -94,6 +94,11 @@ public class Profile implements Serializable {
         return Instant.ofEpochMilli(dateToConvert.getTime())
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
+    }
+
+    public void setBirthDay(Date birthDay) {
+        this.birthDay = birthDay;
+        postLoadAge();
     }
 
     @Transient
