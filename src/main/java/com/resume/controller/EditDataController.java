@@ -1,13 +1,7 @@
 package com.resume.controller;
 
-import com.resume.entity.Certificate;
-import com.resume.entity.Practic;
-import com.resume.entity.Profile;
-import com.resume.entity.Skill;
-import com.resume.form.CertificateForm;
-import com.resume.form.PracticsForm;
-import com.resume.form.SkillForm;
-import com.resume.form.UploadCertificateResponse;
+import com.resume.entity.*;
+import com.resume.form.*;
 import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
 import com.resume.service.ImageService;
@@ -33,7 +27,7 @@ public class EditDataController {
     private ProfileRepository profileRepository;
     private ImageService imageService;
     //TODO изменить id профиля на текущего пользователя
-    private final static Long CURRENT_PROFILE_ID = 6L;
+    private final static Long CURRENT_PROFILE_ID = 13L;
 
     @Autowired
     public EditDataController(SkillCategoryRepository skillCategoryRepository, ProfileRepository profileRepository, ImageService imageService) {
@@ -165,13 +159,27 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/courses")
-    public String getEditCourses() {
-        return "";
+    public String getEditCourses(Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        CourseForm courseForm = new CourseForm();
+        byId.ifPresent(profile -> courseForm.setCourses(profile.getCourses()));
+        model.addAttribute("courseForm", courseForm);
+        model.addAttribute("years", prepareYearsList());
+        return "edit/courses";
     }
 
     @PostMapping("/edit/courses")
-    public String editCourses() {
-        return "";
+    public String editCourses(@Valid @ModelAttribute("courseFrom") CourseForm courseFrom, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            return "edit/courses";
+        }
+        List<Course> courses = courseFrom.getCourses();
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+            profile.setCourses(courses);
+            profileRepository.save(profile);
+        });
+        return "redirect:/";
     }
 
     @GetMapping("/edit/education")

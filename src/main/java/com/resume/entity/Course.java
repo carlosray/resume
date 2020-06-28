@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -13,7 +14,7 @@ import java.util.Date;
 @ToString(exclude = "profile")
 @NoArgsConstructor
 @Entity
-public class Course implements Serializable {
+public class Course extends BeginAndFinishDateModel implements Serializable {
     private static final long serialVersionUID = 1416530477224390885L;
 
     @Id
@@ -31,4 +32,17 @@ public class Course implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date finishDate;
 
+    @Override
+    public void setBeginDate(Date from) {
+
+    }
+
+    @PostLoad
+    void postLoad() {
+        if (this.finishDate != null) {
+            LocalDate localFinishDate = convertToLocalDateViaInstant(this.finishDate);
+            this.finishDateMonth = localFinishDate.getMonthValue();
+            this.finishDateYear = localFinishDate.getYear();
+        }
+    }
 }

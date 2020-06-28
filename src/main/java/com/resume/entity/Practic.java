@@ -11,11 +11,11 @@ import java.util.Date;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "profile")
+@EqualsAndHashCode(exclude = "profile", callSuper = false)
 @ToString(exclude = "profile")
 @NoArgsConstructor
 @Entity
-public class Practic implements Serializable {
+public class Practic extends BeginAndFinishDateModel implements Serializable {
     private static final long serialVersionUID = 1416530477224390885L;
 
     @Id
@@ -32,17 +32,9 @@ public class Practic implements Serializable {
     @Column(name = "begin_date")
     @Temporal(TemporalType.DATE)
     private Date beginDate;
-    @Transient
-    private Integer beginDateMonth;
-    @Transient
-    private Integer beginDateYear;
     @Column(name = "finish_date")
     @Temporal(TemporalType.DATE)
     private Date finishDate;
-    @Transient
-    private Integer finishDateMonth;
-    @Transient
-    private Integer finishDateYear;
     @Column(length = 2147483647)
     private String responsibilities;
     @Column
@@ -61,58 +53,6 @@ public class Practic implements Serializable {
             LocalDate localFinishDate = convertToLocalDateViaInstant(this.finishDate);
             this.finishDateMonth = localFinishDate.getMonthValue();
             this.finishDateYear = localFinishDate.getYear();
-        }
-    }
-
-    public LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
-        return Instant.ofEpochMilli(dateToConvert.getTime())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-    }
-
-    public void setBeginDateMonth(Integer beginDateMonth) {
-        this.beginDateMonth = beginDateMonth;
-        setupBeginDate();
-    }
-
-    public void setBeginDateYear(Integer beginDateYear) {
-        this.beginDateYear = beginDateYear;
-        setupBeginDate();
-    }
-
-    private void setupBeginDate() {
-        if (beginDateMonth != null && beginDateYear != null) {
-            setBeginDate(Date.from
-                    (LocalDate.of(beginDateYear, beginDateMonth, 1)
-                    .atStartOfDay()
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant()));
-        }
-        else {
-            setBeginDate(null);
-        }
-    }
-
-    public void setFinishDateMonth(Integer finishDateMonth) {
-        this.finishDateMonth = finishDateMonth;
-        setupFinishDate();
-    }
-
-    public void setFinishDateYear(Integer finishDateYear) {
-        this.finishDateYear = finishDateYear;
-        setupFinishDate();
-    }
-
-    private void setupFinishDate() {
-        if (finishDateMonth != null && finishDateYear != null) {
-            setFinishDate(Date.from
-                    (LocalDate.of(finishDateYear, finishDateMonth, 1)
-                            .atStartOfDay()
-                            .atZone(ZoneId.systemDefault())
-                            .toInstant()));
-        }
-        else {
-            setFinishDate(null);
         }
     }
 }
