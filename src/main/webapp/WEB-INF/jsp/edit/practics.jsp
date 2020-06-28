@@ -14,7 +14,7 @@
         <form:form action="/edit/practics" method="post" modelAttribute="practicsForm">
             <div id="ui-block-container">
                 <c:forEach var="practic" items="${practicsForm.practics}" varStatus="status">
-                    <resume:edit-practic-block index="${status.index}" />
+                    <resume:edit-practic-block index="${status.index}" practic="${practic}"/>
                 </c:forEach>
             </div>
             <div class="row">
@@ -31,3 +31,6 @@
         </form:form>
     </div>
 </div>
+<script id="ui-block-template" type="text/x-handlebars-template">
+    <resume:edit-practic-block index="{{blockIndex}}" />
+</script>

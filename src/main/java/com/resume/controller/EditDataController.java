@@ -94,6 +94,7 @@ public class EditDataController {
         PracticsForm practicsForm = new PracticsForm();
         byId.ifPresent(profile -> {
             practicsForm.setPractics(profile.getPractics());
+            model.addAttribute("profileId", profile.getId());
         });
         model.addAttribute("practicsForm", practicsForm);
         model.addAttribute("years", prepareYearsList());
@@ -101,7 +102,7 @@ public class EditDataController {
     }
 
     private List<Integer> prepareYearsList() {
-        Year beginYear = Year.of(2000);
+        Year beginYear = Year.of(1990);
         Year endYear = Year.now();
         List<Integer> years = new ArrayList<>();
         while (beginYear.isBefore(endYear) || beginYear.equals(endYear)) {
@@ -152,7 +153,8 @@ public class EditDataController {
     }
 
     @PostMapping("/edit/certificates/upload")
-    public @ResponseBody UploadCertificateResponse editCertificatesUpload(@RequestParam("certificateFile") MultipartFile certificateFile) {
+    public @ResponseBody
+    UploadCertificateResponse editCertificatesUpload(@RequestParam("certificateFile") MultipartFile certificateFile) {
         UploadCertificateResponse response = imageService.processCertificate(certificateFile);
         log.debug("New Certificate uploaded: " + response.getLargeUrl());
         return response;
@@ -162,7 +164,10 @@ public class EditDataController {
     public String getEditCourses(Model model) {
         Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         CourseForm courseForm = new CourseForm();
-        byId.ifPresent(profile -> courseForm.setCourses(profile.getCourses()));
+        byId.ifPresent(profile -> {
+            courseForm.setCourses(profile.getCourses());
+            model.addAttribute("profileId", profile.getId());
+        });
         model.addAttribute("courseForm", courseForm);
         model.addAttribute("years", prepareYearsList());
         return "edit/courses";
@@ -183,13 +188,30 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/education")
-    public String getEditEducation() {
-        return "";
+    public String getEditEducation(Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        EducationForm educationForm = new EducationForm();
+        byId.ifPresent(profile -> {
+            educationForm.setEducations(profile.getEducations());
+            model.addAttribute("profileId", profile.getId());
+        });
+        model.addAttribute("educationForm", educationForm);
+        model.addAttribute("years", prepareYearsList());
+        return "edit/education";
     }
 
     @PostMapping("/edit/education")
-    public String editEducation() {
-        return "";
+    public String editEducation(@Valid @ModelAttribute("educationForm") EducationForm educationForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            return "edit/education";
+        }
+        List<Education> educations = educationForm.getEducations();
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+            profile.setEducations(educations);
+            profileRepository.save(profile);
+        });
+        return "redirect:/";
     }
 
     @GetMapping("/edit/languages")
