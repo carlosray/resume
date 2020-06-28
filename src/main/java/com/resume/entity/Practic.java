@@ -19,6 +19,8 @@ public class Practic implements Serializable {
     private static final long serialVersionUID = 1416530477224390885L;
 
     @Id
+    @SequenceGenerator(name="practic_generator", sequenceName = "practic_id_seq", allocationSize=1)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="practic_generator")
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)

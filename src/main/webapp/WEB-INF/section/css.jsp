@@ -7,3 +7,4 @@
 <link rel="stylesheet" href="/static/css/bootstrap-slider-6.1.6.css">
 <link rel="stylesheet" href="/static/css/bootstrap-datepicker-1.6.0.css">
 <link rel="stylesheet" href="/static/css/fileinput-4.3.2.css">
+<link rel="stylesheet" href="/static/css/magnific-popup.css">

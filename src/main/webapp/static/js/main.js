@@ -1,81 +1,74 @@
+$(document).ready(function() {
+	resume.initCertificateViewer();
+	resume.createCertificateUploader();
+});
+
 var resume = {
 	// initCertificateViewer : function() {
 	// 	$('a.certificate-link').click(function(e) {
 	// 		e.preventDefault();
 	// 		var title = $(this).attr("data-title");
-	// 		$('#certificateViewer .modal-title').html(title);
-	// 		$('#certificateViewer .modal-body img').attr('src',$(this).attr("data-url"));
+	// 		$('#certificateViewer.modal-title').html(title);
+	// 		$('#certificateViewer.modal-body img').attr('src',$(this).attr("data-url"));
 	// 		$('#certificateViewer').modal({
 	// 			show : true
 	// 		});
 	// 	});
-	// },
-	// createDatePicker : function() {
-	// 	/* http://bootstrap-datepicker.readthedocs.org/en/latest/options.html */
-	// 	$('.datepicker').datepicker({
-	// 		autoclose : true,
-	// 		clearBtn : true
-	// 	});
-	// },
-	// createPhotoUploader : function(){
-	// 	//https://github.com/kartik-v/bootstrap-fileinput
-	// 	$("#profilePhoto").fileinput({
-	// 		uploadAsync: false,
-	// 		showUpload: false,
-	// 	 	allowedFileExtensions : ['jpg', 'png'],
-	// 		maxFileCount: 1
-	// 	});
-	// 	$('#profilePhoto').on('fileclear', function() {
-	//         $('#currentPhoto').css('display', 'block');
-	//     });
-	//     $('#profilePhoto').on('fileloaded', function() {
-	//     	$('#currentPhoto').css('display', 'none');
-	//     });
-	// },
-	// createCertificateUploader : function(csrfToken){
-	// 	//https://github.com/kartik-v/bootstrap-fileinput
-	// 	$("#certificateFile").fileinput({
-	// 		uploadUrl: '/edit/certificates/upload?_csrf='+csrfToken,
-	// 	 	allowedFileExtensions : ['jpg', 'png'],
-	// 		maxFileCount: 1,
-	// 		showPreview:false
-	// 	});
-	// 	$('#certificateFile').on('fileuploaded', function(event, data, previewId, index) {
-	// 	    var response = data.response;
-	// 	    if(response.certificateName != null) {
-	// 	    	if($('#certificateName').val().trim() == '') {
-	// 	    		$('#certificateName').val(response.certificateName);
-	// 	    	}
-	// 	    }
-	// 	    $('#certificateUploader').attr('data-small-url', response.smallUrl);
-	// 	    $('#certificateUploader').attr('data-large-url', response.largeUrl);
-	// 	});
-	// 	$('#certificateFile').on('fileuploaderror', function(event, data, msg) {
-	// 	    resume.showErrorDialog(messages.errorUploadCertificate);
-	// 	});
-	// },
+	// }
+	initCertificateViewer : function() {
+		var path = $(this).attr("data-url");
+		$('.certificate-link').magnificPopup({
+			type: 'image' // this is default type
+		});
+	},
+	createDatePicker : function() {
+		/* http://bootstrap-datepicker.readthedocs.org/en/latest/options.html */
+		$('.datepicker').datepicker({
+			autoclose : true,
+			clearBtn : true
+		});
+	},
+	createPhotoUploader : function(){
+		//https://github.com/kartik-v/bootstrap-fileinput
+		$("#profilePhoto").fileinput({
+			uploadAsync: false,
+			showUpload: false,
+		 	allowedFileExtensions : ['jpg', 'png'],
+			maxFileCount: 1
+		});
+		$('#profilePhoto').on('fileclear', function() {
+	        $('#currentPhoto').css('display', 'block');
+	    });
+	    $('#profilePhoto').on('fileloaded', function() {
+	    	$('#currentPhoto').css('display', 'none');
+	    });
+	},
+	createCertificateUploader : function(){
+		//https://github.com/kartik-v/bootstrap-fileinput
+		$("#certificateFile").fileinput({
+			uploadUrl: '/edit/certificates/upload',
+		 	allowedFileExtensions : ['jpg', 'png'],
+			maxFileCount: 1,
+			showPreview:false
+		});
+		$('#certificateFile').on('fileuploaded', function(event, data, previewId, index) {
+		    var response = data.response;
+		    if(response.certificateName != null) {
+		    	if($('#certificateName').val().trim() == '') {
+		    		$('#certificateName').val(response.certificateName);
+		    	}
+		    }
+		    $('#certificateUploader').attr('data-small-url', response.smallUrl);
+		    $('#certificateUploader').attr('data-large-url', response.largeUrl);
+		});
+		$('#certificateFile').on('fileuploaderror', function(event, data, msg) {
+			console.log(msg);
+		    resume.showErrorDialog(messages.errorUploadCertificate);
+		});
+	},
 	showErrorDialog : function(message) {
 		alert(message);
 	},
-	// post : function(path, params) {
-	// 	var form = document.createElement("form");
-	// 	form.setAttribute("method", 'post');
-	// 	form.setAttribute("action", path);
-	// 	for ( var key in params) {
-	// 		if (params.hasOwnProperty(key)) {
-	// 			var value = params[key];
-	// 			if (value != undefined) {
-	// 				var hiddenField = document.createElement("input");
-	// 				hiddenField.setAttribute("type", "hidden");
-	// 				hiddenField.setAttribute("name", key);
-	// 				hiddenField.setAttribute("value", params[key]);
-	// 				form.appendChild(hiddenField);
-	// 			}
-	// 		}
-	// 	}
-	// 	document.body.appendChild(form);
-	// 	form.submit();
-	// },
 
 	// logout : function (csrfToken){
 	// 	resume.post('/logout', {
@@ -148,35 +141,35 @@ var resume = {
 		}
 	},
 
-	// certificates : {
-	// 	showUploadDialog : function() {
-	// 		$('#certificateUploader').modal({
-	// 			show : true
-	// 		});
-	// 	},
-	//
-	// 	add : function (){
-	// 		var certificateName = $('#certificateName').val();
-	// 		//https://www.tjvantoll.com/2012/08/05/html5-form-validation-showing-all-error-messages/
-	// 		if(certificateName.trim() == '') {
-	// 			alert('certificateName is null')
-	// 			return;
-	// 		}
-	// 		var template = resume.ui.getTemplate();
-	// 		var container = $('#ui-block-container');
-	// 		var blockIndex = container.find('.ui-item').length;
-	// 		var context = {
-	// 			blockIndex : blockIndex,
-	// 			name : $('#certificateName').val(),
-	// 			smallUrl : $('#certificateUploader').attr('data-small-url'),
-	// 			largeUrl : $('#certificateUploader').attr('data-large-url')
-	// 		};
-	// 		container.append(template(context));
-	// 		$('#certificateUploader').modal('hide');
-	// 		$('#certificateName').val('');
-	// 		$('#certificateFile').fileinput('clear');
-	// 	}
-	// },
+	certificates : {
+		showUploadDialog : function() {
+			$('#certificateUploader').modal({
+				show : true
+			});
+		},
+
+		add : function (){
+			var certificateName = $('#certificateName').val();
+			//https://www.tjvantoll.com/2012/08/05/html5-form-validation-showing-all-error-messages/
+			if(certificateName.trim() == '') {
+				alert('certificateName is null')
+				return;
+			}
+			var template = resume.ui.getTemplate();
+			var container = $('#ui-block-container');
+			var blockIndex = container.find('.ui-item').length;
+			var context = {
+				blockIndex : blockIndex,
+				name : $('#certificateName').val(),
+				smallUrl : $('#certificateUploader').attr('data-small-url'),
+				largeUrl : $('#certificateUploader').attr('data-large-url')
+			};
+			container.append(template(context));
+			$('#certificateUploader').modal('hide');
+			$('#certificateName').val('');
+			$('#certificateFile').fileinput('clear');
+		}
+	},
 
 	// hobbies : {
 	// 	errorTimeout : null,

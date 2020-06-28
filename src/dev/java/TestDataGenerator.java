@@ -12,8 +12,8 @@ import java.sql.*;
 import java.util.*;
 
 public class TestDataGenerator {
-    private static final String DRIVER = "org.sqlite.JDBC";
-    private static final String JDBC_URL = "jdbc:sqlite:resumedb.s3db";
+    private static final String DRIVER = "org.postgresql.Driver";
+    private static final String JDBC_URL = "jdbc:postgresql://localhost:5432/resumedb";
 
     private static final String PHOTO_PATH = "external/test-data/photos/";
     private static final String CERT_PATH = "external/test-data/certificates/";
@@ -60,7 +60,7 @@ public class TestDataGenerator {
         List<Certificate> certificates = loadCertificates();
         List<Profile> profiles = loadProfiles();
         List<ProfileConfig> profileConfigs = getProfileConfigs();
-        try (Connection connection = DriverManager.getConnection(JDBC_URL)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, "postgres", "postgres")) {
             clearDb(connection);
             connection.setAutoCommit(false);
             for (Profile profile : profiles) {
@@ -565,7 +565,7 @@ public class TestDataGenerator {
     private static void insertProfileData(Connection connection, Profile profile, ProfileConfig profileConfig) throws SQLException, IOException {
         PreparedStatement ps = connection.prepareStatement(
                 "insert into profile (uid, first_name, last_name, birth_day, phone, email, country, city, objective, summary, large_photo, small_photo, info, password, completed, created, skype, vkontakte, facebook, linkedin, github, stackoverflow) " +
-                        "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,true,?,?,?,?,?,?,?)");
+                        "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,true,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
         String lowerCaseProfileName = (profile.firstName + "-" + profile.lastName).toLowerCase();
         ps.setString(1, lowerCaseProfileName);
         ps.setString(2, profile.firstName);

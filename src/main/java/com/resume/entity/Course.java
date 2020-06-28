@@ -17,6 +17,8 @@ public class Course implements Serializable {
     private static final long serialVersionUID = 1416530477224390885L;
 
     @Id
+    @SequenceGenerator(name="course_generator", sequenceName = "course_id_seq", allocationSize=1)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="course_generator")
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)

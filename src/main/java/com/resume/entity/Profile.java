@@ -23,7 +23,8 @@ public class Profile implements Serializable {
     private static final long serialVersionUID = 4902501196394768938L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name="profile_generator", sequenceName = "profile_id_seq", allocationSize=1)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="profile_generator")
     private Long id;
     @OneToOne(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private ProfileRestore profileRestore;

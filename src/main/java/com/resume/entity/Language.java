@@ -17,6 +17,8 @@ public class Language implements Serializable {
     private static final long serialVersionUID = 3016136734521377289L;
 
     @Id
+    @SequenceGenerator(name="language_generator", sequenceName = "language_id_seq", allocationSize=1)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="language_generator")
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)

@@ -1,28 +1,29 @@
 package com.resume.controller;
 
+import com.resume.entity.Certificate;
 import com.resume.entity.Practic;
 import com.resume.entity.Profile;
 import com.resume.entity.Skill;
+import com.resume.form.CertificateForm;
 import com.resume.form.PracticsForm;
 import com.resume.form.SkillForm;
+import com.resume.form.UploadCertificateResponse;
 import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
+import com.resume.service.ImageService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @Controller
 @Log4j
@@ -30,13 +31,15 @@ public class EditDataController {
 
     private SkillCategoryRepository skillCategoryRepository;
     private ProfileRepository profileRepository;
+    private ImageService imageService;
     //TODO изменить id профиля на текущего пользователя
-    private final static Long CURRENT_PROFILE_ID = 49L;
+    private final static Long CURRENT_PROFILE_ID = 6L;
 
     @Autowired
-    public EditDataController(SkillCategoryRepository skillCategoryRepository, ProfileRepository profileRepository) {
+    public EditDataController(SkillCategoryRepository skillCategoryRepository, ProfileRepository profileRepository, ImageService imageService) {
         this.skillCategoryRepository = skillCategoryRepository;
         this.profileRepository = profileRepository;
+        this.imageService = imageService;
     }
 
     @GetMapping("/my-profile")
@@ -118,7 +121,7 @@ public class EditDataController {
     public String editPractics(@Valid @ModelAttribute("practicsForm") PracticsForm practicsForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
-            return "edit/skills";
+            return "edit/practics";
         }
         List<Practic> practics = practicsForm.getPractics();
         profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
@@ -129,18 +132,36 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/certificates")
-    public String getEditCertificates() {
-        return "";
+    public String getEditCertificates(Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        CertificateForm certificateForm = new CertificateForm();
+        byId.ifPresent(profile -> {
+            certificateForm.setCertificates(profile.getCertificates());
+            model.addAttribute("profileId", profile.getId());
+        });
+        model.addAttribute("certificateForm", certificateForm);
+        return "edit/certificates";
     }
 
     @PostMapping("/edit/certificates")
-    public String editCertificates() {
-        return "";
+    public String editCertificates(@Valid @ModelAttribute("certificateForm") CertificateForm certificateForm, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            return "edit/certificates";
+        }
+        List<Certificate> certificates = certificateForm.getCertificates();
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+            profile.setCertificates(certificates);
+            profileRepository.save(profile);
+        });
+        return "redirect:/";
     }
 
     @PostMapping("/edit/certificates/upload")
-    public String editCertificatesUpload() {
-        return "";
+    public @ResponseBody UploadCertificateResponse editCertificatesUpload(@RequestParam("certificateFile") MultipartFile certificateFile) {
+        UploadCertificateResponse response = imageService.processCertificate(certificateFile);
+        log.debug("New Certificate uploaded: " + response.getLargeUrl());
+        return response;
     }
 
     @GetMapping("/edit/courses")

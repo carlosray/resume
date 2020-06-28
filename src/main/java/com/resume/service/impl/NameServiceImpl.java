@@ -1,10 +1,11 @@
-package com.resume.service;
+package com.resume.service.impl;
 
+import com.resume.service.NameService;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.stereotype.Service;
 
 @Service("nameService")
-public class NameServiceImpl implements NameService{
+public class NameServiceImpl implements NameService {
 
     public String convertName(String name) {
         if (name.contains("-")) {

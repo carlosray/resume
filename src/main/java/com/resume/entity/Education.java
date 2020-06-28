@@ -16,6 +16,8 @@ public class Education implements Serializable {
     private static final long serialVersionUID = 1416530477224390885L;
 
     @Id
+    @SequenceGenerator(name="education_generator", sequenceName = "education_id_seq", allocationSize=1)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="education_generator")
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)
