@@ -2,20 +2,25 @@ package com.resume.controller;
 
 import com.resume.entity.*;
 import com.resume.form.*;
+import com.resume.model.LanguageLevel;
+import com.resume.model.LanguageType;
 import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
 import com.resume.service.ImageService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +39,13 @@ public class EditDataController {
         this.skillCategoryRepository = skillCategoryRepository;
         this.profileRepository = profileRepository;
         this.imageService = imageService;
+    }
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class,		new StringTrimmerEditor(true));
+        binder.registerCustomEditor(LanguageType.class, LanguageType.getPropertyEditor());
+        binder.registerCustomEditor(LanguageLevel.class,LanguageLevel.getPropertyEditor());
     }
 
     @GetMapping("/my-profile")
@@ -76,7 +88,7 @@ public class EditDataController {
     @PostMapping("/edit/skills")
     public String editSkills(@Valid @ModelAttribute("skillForm") SkillForm skillForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            debugBindingMessage(bindingResult);
             model.addAttribute("skillCategories", skillCategoryRepository.findAll());
             return "edit/skills";
         }
@@ -85,7 +97,7 @@ public class EditDataController {
             profile.setSkills(skills);
             profileRepository.save(profile);
         });
-        return "redirect:/";
+        return "redirect:/edit/practics";
     }
 
     @GetMapping("/edit/practics")
@@ -115,7 +127,7 @@ public class EditDataController {
     @PostMapping("/edit/practics")
     public String editPractics(@Valid @ModelAttribute("practicsForm") PracticsForm practicsForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            debugBindingMessage(bindingResult);
             return "edit/practics";
         }
         List<Practic> practics = practicsForm.getPractics();
@@ -123,7 +135,7 @@ public class EditDataController {
             profile.setPractics(practics);
             profileRepository.save(profile);
         });
-        return "redirect:/";
+        return "redirect:/edit/certificates";
     }
 
     @GetMapping("/edit/certificates")
@@ -141,7 +153,7 @@ public class EditDataController {
     @PostMapping("/edit/certificates")
     public String editCertificates(@Valid @ModelAttribute("certificateForm") CertificateForm certificateForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            debugBindingMessage(bindingResult);
             return "edit/certificates";
         }
         List<Certificate> certificates = certificateForm.getCertificates();
@@ -149,7 +161,7 @@ public class EditDataController {
             profile.setCertificates(certificates);
             profileRepository.save(profile);
         });
-        return "redirect:/";
+        return "redirect:/edit/courses";
     }
 
     @PostMapping("/edit/certificates/upload")
@@ -176,7 +188,7 @@ public class EditDataController {
     @PostMapping("/edit/courses")
     public String editCourses(@Valid @ModelAttribute("courseFrom") CourseForm courseFrom, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            debugBindingMessage(bindingResult);
             return "edit/courses";
         }
         List<Course> courses = courseFrom.getCourses();
@@ -184,7 +196,7 @@ public class EditDataController {
             profile.setCourses(courses);
             profileRepository.save(profile);
         });
-        return "redirect:/";
+        return "redirect:/edit/education";
     }
 
     @GetMapping("/edit/education")
@@ -203,7 +215,7 @@ public class EditDataController {
     @PostMapping("/edit/education")
     public String editEducation(@Valid @ModelAttribute("educationForm") EducationForm educationForm, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+            debugBindingMessage(bindingResult);
             return "edit/education";
         }
         List<Education> educations = educationForm.getEducations();
@@ -211,17 +223,35 @@ public class EditDataController {
             profile.setEducations(educations);
             profileRepository.save(profile);
         });
-        return "redirect:/";
+        return "redirect:/edit/languages";
     }
 
     @GetMapping("/edit/languages")
-    public String getEditLanguages() {
-        return "";
+    public String getEditLanguages(Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        LanguageForm languageForm = new LanguageForm();
+        byId.ifPresent(profile -> {
+            languageForm.setLanguages(profile.getLanguages());
+            model.addAttribute("profileId", profile.getId());
+        });
+        model.addAttribute("languageForm", languageForm);
+        model.addAttribute("languageTypes", EnumSet.allOf(LanguageType.class));
+        model.addAttribute("languageLevels", EnumSet.allOf(LanguageLevel.class));
+        return "edit/languages";
     }
 
     @PostMapping("/edit/languages")
-    public String editLanguages() {
-        return "";
+    public String editLanguages(@Valid @ModelAttribute("languageForm") LanguageForm languageForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            debugBindingMessage(bindingResult);
+            return "edit/languages";
+        }
+        List<Language> languages = languageForm.getLanguages();
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+            profile.setLanguages(languages);
+            profileRepository.save(profile);
+        });
+        return "redirect:/edit/hobbies";
     }
 
     @GetMapping("/edit/hobbies")
@@ -253,4 +283,9 @@ public class EditDataController {
     public String editPassword() {
         return "";
     }
+
+    private void debugBindingMessage(BindingResult bindingResult) {
+        bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+    }
+
 }

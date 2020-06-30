@@ -1,9 +1,10 @@
 package com.resume.model;
 
-import org.hibernate.metamodel.model.convert.spi.JpaAttributeConverter;
+import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import java.beans.PropertyEditorSupport;
 
 public enum  LanguageLevel {
     BEGINNER,
@@ -18,6 +19,14 @@ public enum  LanguageLevel {
         return name().toLowerCase();
     }
 
+    public int getSliderIntValue(){
+        return ordinal();
+    }
+
+    public String getCaption() {
+        return StringUtils.capitalize(name());
+    }
+
     @Converter
     public static class PersistJPAConverter implements AttributeConverter<LanguageLevel, String> {
 
@@ -30,6 +39,16 @@ public enum  LanguageLevel {
         public LanguageLevel convertToEntityAttribute(String dbValue) {
             return LanguageLevel.valueOf(dbValue.toUpperCase());
         }
+
+    }
+
+    public static PropertyEditorSupport getPropertyEditor(){
+        return new PropertyEditorSupport(){
+            @Override
+            public void setAsText(String sliderIntValue) throws IllegalArgumentException {
+                setValue(LanguageLevel.values()[Integer.parseInt(sliderIntValue)]);
+            }
+        };
     }
 
 }

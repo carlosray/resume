@@ -2,6 +2,7 @@ package com.resume.model;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import java.beans.PropertyEditorSupport;
 
 public enum LanguageType {
     ALL,
@@ -34,5 +35,14 @@ public enum LanguageType {
         public LanguageType convertToEntityAttribute(String dbValue) {
             return LanguageType.valueOf(dbValue.toUpperCase());
         }
+    }
+
+    public static PropertyEditorSupport getPropertyEditor(){
+        return new PropertyEditorSupport(){
+            @Override
+            public void setAsText(String dbValue) throws IllegalArgumentException {
+                setValue(LanguageType.valueOf(dbValue.toUpperCase()));
+            }
+        };
     }
 }
