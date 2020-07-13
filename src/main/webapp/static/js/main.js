@@ -170,39 +170,57 @@ var resume = {
 			$('#certificateFile').fileinput('clear');
 		}
 	},
+	post : function(path, params) {
+		var form = document.createElement("form");
+		form.setAttribute("method", 'post');
+		form.setAttribute("action", path);
+		for ( var key in params) {
+			if (params.hasOwnProperty(key)) {
+				var value = params[key];
+				if (value != undefined) {
+					var hiddenField = document.createElement("input");
+					hiddenField.setAttribute("type", "hidden");
+					hiddenField.setAttribute("name", key);
+					hiddenField.setAttribute("value", params[key]);
+					form.appendChild(hiddenField);
+				}
+			}
+		}
+		document.body.appendChild(form);
+		form.submit();
+	},
+	hobbies : {
+		errorTimeout : null,
 
-	// hobbies : {
-	// 	errorTimeout : null,
-	//
-	// 	save : function() {
-	// 		var hobbies = '';
-	// 		var selectedHobbyButtons = $('.hobby-btn.active');
-	// 		var maxHobbies = parseInt($('#ui-block-container').attr('data-max-hobbies'));
-	// 		if (selectedHobbyButtons.length > maxHobbies) {
-	// 			var closeFunction = function() {
-	// 				$('#errorAlert').fadeOut('slow');
-	// 				if (resume.hobbies.errorTimeout != null) {
-	// 					clearTimeout(resume.hobbies.errorTimeout);
-	// 					resume.hobbies.errorTimeout = null;
-	// 				}
-	// 			};
-	// 			$('#errorAlert button').unbind('click');
-	// 			$('#errorAlert button').click(closeFunction);
-	// 			$('#errorAlert').fadeIn('slow');
-	// 			resume.hobbies.errorTimeout = setTimeout(closeFunction, 5000);
-	// 			return;
-	// 		}
-	// 		for (var i = 0; i < selectedHobbyButtons.length; i++) {
-	// 			hobbies += $(selectedHobbyButtons[i]).attr('data-hobby');
-	// 			if (i != selectedHobbyButtons.length - 1) {
-	// 				hobbies += ',';
-	// 			}
-	// 		}
-	// 		var _csrfToken = $('#hobbyContainer').attr('data-csrf-value');
-	// 		resume.post('/edit/hobbies', {
-	// 			hobbies : hobbies,
-	// 			_csrf : _csrfToken
-	// 		});
-	// 	}
-	// }
+		save : function() {
+			var hobbies = '';
+			var selectedHobbyButtons = $('.hobby-btn.active');
+			var maxHobbies = parseInt($('#ui-block-container').attr('data-max-hobbies'));
+			if (selectedHobbyButtons.length > maxHobbies) {
+				var closeFunction = function() {
+					$('#errorAlert').fadeOut('slow');
+					if (resume.hobbies.errorTimeout != null) {
+						clearTimeout(resume.hobbies.errorTimeout);
+						resume.hobbies.errorTimeout = null;
+					}
+				};
+				$('#errorAlert button').unbind('click');
+				$('#errorAlert button').click(closeFunction);
+				$('#errorAlert').fadeIn('slow');
+				resume.hobbies.errorTimeout = setTimeout(closeFunction, 5000);
+				return;
+			}
+			for (var i = 0; i < selectedHobbyButtons.length; i++) {
+				hobbies += $(selectedHobbyButtons[i]).attr('data-hobby');
+				if (i != selectedHobbyButtons.length - 1) {
+					hobbies += ',';
+				}
+			}
+			//var _csrfToken = $('#hobbyContainer').attr('data-csrf-value');
+			resume.post('/edit/hobbies', {
+				hobbies : hobbies
+				//_csrf : _csrfToken
+			});
+		}
+	}
 };

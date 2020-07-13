@@ -6,9 +6,11 @@ import com.resume.model.LanguageLevel;
 import com.resume.model.LanguageType;
 import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
+import com.resume.service.HobbyService;
 import com.resume.service.ImageService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @Log4j
@@ -31,14 +30,16 @@ public class EditDataController {
     private SkillCategoryRepository skillCategoryRepository;
     private ProfileRepository profileRepository;
     private ImageService imageService;
+    private HobbyService hobbyService;
     //TODO изменить id профиля на текущего пользователя
     private final static Long CURRENT_PROFILE_ID = 13L;
 
     @Autowired
-    public EditDataController(SkillCategoryRepository skillCategoryRepository, ProfileRepository profileRepository, ImageService imageService) {
+    public EditDataController(SkillCategoryRepository skillCategoryRepository, ProfileRepository profileRepository, ImageService imageService, HobbyService hobbyService) {
         this.skillCategoryRepository = skillCategoryRepository;
         this.profileRepository = profileRepository;
         this.imageService = imageService;
+        this.hobbyService = hobbyService;
     }
 
     @InitBinder
@@ -255,13 +256,31 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/hobbies")
-    public String getEditHobbies() {
-        return "";
+    public String getEditHobbies(Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        Set<Hobby> hobbies = new TreeSet<>();
+        if (byId.isPresent()) {
+            List<Hobby> hobbyList = byId.get().getHobbies();
+            //log.debug("Hobbies list by profile: " + hobbyList);
+            hobbies = hobbyService.getAllHobbiesListWithSelected(hobbyList);
+        }
+        int maxHobbies = 5;
+        model.addAttribute("maxHobbies", maxHobbies);
+        model.addAttribute("hobbies", hobbies);
+        return "edit/hobbies";
     }
 
     @PostMapping("/edit/hobbies")
-    public String editHobbies() {
-        return "";
+    public String editHobbies(@RequestParam("hobbies") List<String> hobbies) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        if (byId.isPresent()) {
+            Profile profile = byId.get();
+            List<Hobby> hobbiesByName = hobbyService.getHobbiesByName(hobbies, profile);
+            //log.debug("hobbiesByName: " + hobbiesByName);
+            profile.setHobbies(hobbiesByName);
+            profileRepository.save(profile);
+        }
+        return "redirect:/edit/info";
     }
 
     @GetMapping("/edit/info")

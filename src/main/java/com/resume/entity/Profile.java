@@ -102,6 +102,16 @@ public class Profile implements Serializable {
         postLoadAge();
     }
 
+    public void addHobby(Hobby hobby) {
+        hobbies.add(hobby);
+        hobby.setProfile(this);
+    }
+
+    public void removeHobby(Hobby hobby) {
+        hobbies.remove(hobby);
+        hobby.setProfile(null);
+    }
+
     @Transient
     public String getFullName() {
         return String.format("%s %s", this.firstName, this.lastName);
