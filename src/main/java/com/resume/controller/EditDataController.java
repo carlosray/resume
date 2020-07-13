@@ -49,11 +49,6 @@ public class EditDataController {
         binder.registerCustomEditor(LanguageLevel.class,LanguageLevel.getPropertyEditor());
     }
 
-    @GetMapping("/my-profile")
-    public String getEditMyProfile() {
-        return "myProfile";
-    }
-
     @GetMapping("/edit")
     public String getEditPage() {
         return "edit";
@@ -284,13 +279,28 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/info")
-    public String getEditInfo() {
-        return "";
+    public String getEditInfo(Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        InfoForm infoForm = new InfoForm();
+        byId.ifPresent(profile -> {
+            infoForm.setInfo(profile.getInfo());
+        });
+        model.addAttribute("infoForm", infoForm);
+        return "edit/info";
     }
 
     @PostMapping("/edit/info")
-    public String editInfo() {
-        return "";
+    public String editInfo(@Valid @ModelAttribute("infoForm") InfoForm infoForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            debugBindingMessage(bindingResult);
+            return "edit/info";
+        }
+        String info = infoForm.getInfo();
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+            profile.setInfo(info);
+            profileRepository.save(profile);
+        });
+        return "redirect:/my-profile";
     }
 
     @GetMapping("/edit/password")
@@ -301,6 +311,18 @@ public class EditDataController {
     @PostMapping("/edit/password")
     public String editPassword() {
         return "";
+    }
+
+    @RequestMapping(value = "/my-profile")
+    public String getMyProfile() {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        if (byId.isPresent()) {
+            Profile currentProfile = byId.get();
+            return "redirect:/" + currentProfile.getUid();
+        }
+        else {
+            return "redirect:/";
+        }
     }
 
     private void debugBindingMessage(BindingResult bindingResult) {
