@@ -1,8 +1,8 @@
 package com.resume.service;
 
-import com.resume.form.UploadCertificateResponse;
+import com.resume.form.UploadImageResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ImageService {
-    UploadCertificateResponse processCertificate(MultipartFile file);
+    UploadImageResponse processImage(MultipartFile file, ImageType imageType);
 }

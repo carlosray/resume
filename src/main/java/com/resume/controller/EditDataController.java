@@ -8,9 +8,9 @@ import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
 import com.resume.service.HobbyService;
 import com.resume.service.ImageService;
+import com.resume.service.ImageType;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,19 +44,76 @@ public class EditDataController {
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(String.class,		new StringTrimmerEditor(true));
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
         binder.registerCustomEditor(LanguageType.class, LanguageType.getPropertyEditor());
-        binder.registerCustomEditor(LanguageLevel.class,LanguageLevel.getPropertyEditor());
+        binder.registerCustomEditor(LanguageLevel.class, LanguageLevel.getPropertyEditor());
     }
 
     @GetMapping("/edit")
-    public String getEditPage() {
-        return "edit";
+    public String getEditPage(Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        byId.ifPresent(profile -> {
+            model.addAttribute("profileForm", profile);
+        });
+        return "edit/profile";
     }
 
     @PostMapping("/edit")
-    public String editProcess() {
-        return "";
+    public String editProcess(@Valid @ModelAttribute("profileForm") Profile profileForm, BindingResult bindingResult, @RequestParam("profilePhoto") MultipartFile profilePhoto) {
+        if (bindingResult.hasErrors()) {
+            debugBindingMessage(bindingResult);
+            return "edit/profile";
+        }
+        if (!profilePhoto.isEmpty()) {
+            UploadImageResponse uploadImageResponse = imageService.processImage(profilePhoto, ImageType.AVATAR);
+            String largeUrl = uploadImageResponse.getLargeUrl();
+            String smallUrl = uploadImageResponse.getSmallUrl();
+            profileForm.setLargePhoto(largeUrl);
+            profileForm.setSmallPhoto(smallUrl);
+        }
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        if (byId.isPresent()) {
+            Profile currentProfile = byId.get();
+            if (profileForm.getLargePhoto() != null && profileForm.getSmallPhoto() != null) {
+                currentProfile.setSmallPhoto(profileForm.getSmallPhoto());
+                currentProfile.setLargePhoto(profileForm.getLargePhoto());
+            }
+
+            Date birthDayForm = profileForm.getBirthDay();
+            if (checkNullAndEquals(birthDayForm, currentProfile.getBirthDay())) {
+                currentProfile.setBirthDay(birthDayForm);
+            }
+            String countryForm = profileForm.getCountry();
+            if (checkNullAndEquals(countryForm, currentProfile.getCountry())) {
+                currentProfile.setCountry(countryForm);
+            }
+            String cityForm = profileForm.getCity();
+            if (checkNullAndEquals(cityForm, currentProfile.getCity())) {
+                currentProfile.setCity(cityForm);
+            }
+            String emailForm = profileForm.getContactsProfile().getEmail();
+            if (checkNullAndEquals(emailForm, currentProfile.getContactsProfile().getEmail())) {
+                currentProfile.getContactsProfile().setEmail(emailForm);
+            }
+            String phoneForm = profileForm.getContactsProfile().getPhone();
+            if (checkNullAndEquals(phoneForm, currentProfile.getContactsProfile().getPhone())) {
+                currentProfile.getContactsProfile().setPhone(phoneForm);
+            }
+            String objectiveForm = profileForm.getObjective();
+            if (checkNullAndEquals(objectiveForm, currentProfile.getObjective())) {
+                currentProfile.setObjective(objectiveForm);
+            }
+            String summaryForm = profileForm.getSummary();
+            if (checkNullAndEquals(summaryForm, currentProfile.getSummary())) {
+                currentProfile.setSummary(summaryForm);
+            }
+            profileRepository.save(currentProfile);
+        }
+        return "/edit/contacts";
+    }
+
+    public boolean checkNullAndEquals(Object formObj, Object currentProfileObj) {
+        return formObj != null && !formObj.equals(currentProfileObj);
     }
 
     @GetMapping("/edit/contacts")
@@ -162,8 +219,8 @@ public class EditDataController {
 
     @PostMapping("/edit/certificates/upload")
     public @ResponseBody
-    UploadCertificateResponse editCertificatesUpload(@RequestParam("certificateFile") MultipartFile certificateFile) {
-        UploadCertificateResponse response = imageService.processCertificate(certificateFile);
+    UploadImageResponse editCertificatesUpload(@RequestParam("certificateFile") MultipartFile certificateFile) {
+        UploadImageResponse response = imageService.processImage(certificateFile, ImageType.CERTIFICATES);
         log.debug("New Certificate uploaded: " + response.getLargeUrl());
         return response;
     }
@@ -319,8 +376,7 @@ public class EditDataController {
         if (byId.isPresent()) {
             Profile currentProfile = byId.get();
             return "redirect:/" + currentProfile.getUid();
-        }
-        else {
+        } else {
             return "redirect:/";
         }
     }

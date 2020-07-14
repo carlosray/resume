@@ -1,10 +1,13 @@
 package com.resume.entity;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
@@ -35,6 +38,7 @@ public class Profile implements Serializable {
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
     @Column(name = "birth_day")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date birthDay;
     @Transient
@@ -102,14 +106,12 @@ public class Profile implements Serializable {
         postLoadAge();
     }
 
-    public void addHobby(Hobby hobby) {
-        hobbies.add(hobby);
-        hobby.setProfile(this);
-    }
-
-    public void removeHobby(Hobby hobby) {
-        hobbies.remove(hobby);
-        hobby.setProfile(null);
+    public String getProfilePhoto(){
+        if(largePhoto != null) {
+            return largePhoto;
+        } else {
+            return "/static/img/profile-placeholder.png";
+        }
     }
 
     @Transient

@@ -1,6 +1,8 @@
 $(document).ready(function() {
 	resume.initCertificateViewer();
 	resume.createCertificateUploader();
+	resume.createDatePicker();
+	resume.createPhotoUploader();
 });
 
 var resume = {

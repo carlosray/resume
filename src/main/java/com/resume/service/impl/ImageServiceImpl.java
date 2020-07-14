@@ -1,6 +1,6 @@
 package com.resume.service.impl;
 
-import com.resume.form.UploadCertificateResponse;
+import com.resume.form.UploadImageResponse;
 import com.resume.service.FileStorageService;
 import com.resume.service.ImageResizer;
 import com.resume.service.ImageService;
@@ -30,8 +30,8 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public UploadCertificateResponse processCertificate(MultipartFile file) {
-        UploadCertificateResponse response = new UploadCertificateResponse();
+    public UploadImageResponse processImage(MultipartFile file, ImageType imageType) {
+        UploadImageResponse response = new UploadImageResponse();
         try {
             String certificateName = getImageName(file.getOriginalFilename());
             String largeName = generateNewFileName();
@@ -39,7 +39,7 @@ public class ImageServiceImpl implements ImageService {
             Path largeTmp = Files.createTempFile("large", ".jpg");
             Path smallTmp = Files.createTempFile("small", ".jpg");
             transferUploadToFile(file, largeTmp);
-            resizeUpload(largeTmp, smallTmp, ImageType.CERTIFICATES);
+            resizeUpload(largeTmp, smallTmp, imageType);
             //TODO ThreadLocal
             String largeLink = fileStorageService.createImageLink(largeName, ImageType.CERTIFICATES);
             String smallLink = fileStorageService.createImageLink(smallName, ImageType.CERTIFICATES);
