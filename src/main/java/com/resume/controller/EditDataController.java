@@ -117,13 +117,24 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/contacts")
-    public String getEditContacts() {
-        return "";
+    public String getEditContacts(Model model) {
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+            model.addAttribute("contactsForm", profile.getContactsProfile());
+        });
+        return "edit/contacts";
     }
 
     @PostMapping("/edit/contacts")
-    public String editContacts() {
-        return "";
+    public String editContacts(@Valid @ModelAttribute("contactsForm") ContactsProfile contactsForm, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            debugBindingMessage(bindingResult);
+            return "edit/contacts";
+        }
+        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+            profile.setContactsProfile(contactsForm);
+            profileRepository.save(profile);
+        });
+        return "edit/skills";
     }
 
     @GetMapping("/edit/skills")

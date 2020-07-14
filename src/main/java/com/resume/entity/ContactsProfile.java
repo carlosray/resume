@@ -1,5 +1,6 @@
 package com.resume.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +9,7 @@ import javax.persistence.Embeddable;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Embeddable
 public class ContactsProfile {
     @Column(length = 20, unique = true)
