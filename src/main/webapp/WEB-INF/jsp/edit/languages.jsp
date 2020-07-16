@@ -11,7 +11,6 @@
 		<hr />
 		<%--@elvariable id="languageForm" type="com.resume.form.LanguageForm"--%>
 		<form:form action="/edit/languages" method="post" modelAttribute="languageForm">
-			<sec:csrfInput/>
 			<div id="ui-block-container" class="edit-languages">
 				<c:forEach var="language" items="${languageForm.languages}" varStatus="status">
 					<resume:edit-language-block index="${status.index}" language="${language}" />

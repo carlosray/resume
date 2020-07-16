@@ -372,13 +372,19 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/password")
-    public String getEditPassword() {
-        return "";
+    public String getEditPassword(Model model) {
+        PasswordForm passwordForm = new PasswordForm();
+        model.addAttribute("passwordForm", passwordForm);
+        return "password";
     }
 
     @PostMapping("/edit/password")
-    public String editPassword() {
-        return "";
+    public String editPassword(@Valid @ModelAttribute("passwordForm") PasswordForm passwordForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            debugBindingMessage(bindingResult);
+            return "password";
+        }
+        return "my-profile";
     }
 
     @RequestMapping(value = "/my-profile")
@@ -393,7 +399,7 @@ public class EditDataController {
     }
 
     private void debugBindingMessage(BindingResult bindingResult) {
-        bindingResult.getAllErrors().forEach(objectError -> log.debug(objectError.getObjectName() + " | " + objectError.getDefaultMessage()));
+        bindingResult.getAllErrors().forEach(objectError -> log.debug("BindingError: " + objectError.toString()));
     }
 
 }

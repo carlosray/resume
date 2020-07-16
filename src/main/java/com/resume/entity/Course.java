@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.extern.log4j.Log4j;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;

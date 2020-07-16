@@ -1,5 +1,6 @@
 package com.resume.entity;
 
+import com.resume.annotation.constraints.Adulthood;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -37,6 +38,7 @@ public class Profile implements Serializable {
     private String firstName;
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
+    @Adulthood
     @Column(name = "birth_day")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)

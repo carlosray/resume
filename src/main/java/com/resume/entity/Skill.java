@@ -1,5 +1,6 @@
 package com.resume.entity;
 
+import com.resume.annotation.constraints.EnglishLanguage;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,8 +22,10 @@ public class Skill implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)
     private Profile profile;
+    @EnglishLanguage
     @Column(length = 50)
     private String category;
+    @EnglishLanguage
     @Column(length = 2147483647)
     private String value;
 }
