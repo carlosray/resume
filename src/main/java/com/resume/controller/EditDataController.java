@@ -11,6 +11,7 @@ import com.resume.service.ImageService;
 import com.resume.service.ImageType;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,11 +60,13 @@ public class EditDataController {
     }
 
     @PostMapping("/edit")
-    public String editProcess(@Valid @ModelAttribute("profileForm") Profile profileForm, BindingResult bindingResult, @RequestParam("profilePhoto") MultipartFile profilePhoto) {
+    public String editProcess(@Valid @ModelAttribute("profileForm") Profile profileForm, BindingResult bindingResult, @RequestParam("profilePhoto") MultipartFile profilePhoto, Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "edit/profile";
         }
+
         if (!profilePhoto.isEmpty()) {
             UploadImageResponse uploadImageResponse = imageService.processImage(profilePhoto, ImageType.AVATAR);
             String largeUrl = uploadImageResponse.getLargeUrl();
@@ -71,7 +74,7 @@ public class EditDataController {
             profileForm.setLargePhoto(largeUrl);
             profileForm.setSmallPhoto(smallUrl);
         }
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+
         if (byId.isPresent()) {
             Profile currentProfile = byId.get();
             if (profileForm.getLargePhoto() != null && profileForm.getSmallPhoto() != null) {
@@ -126,11 +129,12 @@ public class EditDataController {
 
     @PostMapping("/edit/contacts")
     public String editContacts(@Valid @ModelAttribute("contactsForm") ContactsProfile contactsForm, BindingResult bindingResult, Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "edit/contacts";
         }
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+        byId.ifPresent(profile -> {
             profile.setContactsProfile(contactsForm);
             profileRepository.save(profile);
         });
@@ -143,21 +147,26 @@ public class EditDataController {
         SkillForm skillForm = new SkillForm();
         byId.ifPresent(profile -> {
             skillForm.setSkills(profile.getSkills());
+            model.addAttribute("skillForm", skillForm);
+            prepareSkillsPage(model);
         });
-        model.addAttribute("skillForm", skillForm);
-        model.addAttribute("skillCategories", skillCategoryRepository.findAll());
         return "edit/skills";
+    }
+
+    private void prepareSkillsPage(Model model) {
+        model.addAttribute("skillCategories", skillCategoryRepository.findAll());
     }
 
     @PostMapping("/edit/skills")
     public String editSkills(@Valid @ModelAttribute("skillForm") SkillForm skillForm, BindingResult bindingResult, Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
-            model.addAttribute("skillCategories", skillCategoryRepository.findAll());
+            prepareSkillsPage(model);
             return "edit/skills";
         }
         List<Skill> skills = skillForm.getSkills();
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+        byId.ifPresent(profile -> {
             profile.setSkills(skills);
             profileRepository.save(profile);
         });
@@ -170,10 +179,8 @@ public class EditDataController {
         PracticsForm practicsForm = new PracticsForm();
         byId.ifPresent(profile -> {
             practicsForm.setPractics(profile.getPractics());
-            model.addAttribute("profileId", profile.getId());
+            preparePracticsPage(model, profile);
         });
-        model.addAttribute("practicsForm", practicsForm);
-        model.addAttribute("years", prepareYearsList());
         return "edit/practics";
     }
 
@@ -188,14 +195,23 @@ public class EditDataController {
         return years;
     }
 
+    private void preparePracticsPage(Model model, Profile profile) {
+        model.addAttribute("profileId", profile.getId());
+        model.addAttribute("years", prepareYearsList());
+    }
+
     @PostMapping("/edit/practics")
     public String editPractics(@Valid @ModelAttribute("practicsForm") PracticsForm practicsForm, BindingResult bindingResult, Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
+            byId.ifPresent(profile -> {
+                preparePracticsPage(model, profile);
+            });
             return "edit/practics";
         }
         List<Practic> practics = practicsForm.getPractics();
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+        byId.ifPresent(profile -> {
             profile.setPractics(practics);
             profileRepository.save(profile);
         });
@@ -208,20 +224,28 @@ public class EditDataController {
         CertificateForm certificateForm = new CertificateForm();
         byId.ifPresent(profile -> {
             certificateForm.setCertificates(profile.getCertificates());
-            model.addAttribute("profileId", profile.getId());
+            prepareCertificatePage(model, profile);
         });
         model.addAttribute("certificateForm", certificateForm);
         return "edit/certificates";
     }
 
+    private void prepareCertificatePage(Model model, Profile profile) {
+        model.addAttribute("profileId", profile.getId());
+    }
+
     @PostMapping("/edit/certificates")
     public String editCertificates(@Valid @ModelAttribute("certificateForm") CertificateForm certificateForm, BindingResult bindingResult, Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
+            byId.ifPresent(profile -> {
+                prepareCertificatePage(model, profile);
+            });
             return "edit/certificates";
         }
         List<Certificate> certificates = certificateForm.getCertificates();
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+        byId.ifPresent(profile -> {
             profile.setCertificates(certificates);
             profileRepository.save(profile);
         });
@@ -242,21 +266,29 @@ public class EditDataController {
         CourseForm courseForm = new CourseForm();
         byId.ifPresent(profile -> {
             courseForm.setCourses(profile.getCourses());
-            model.addAttribute("profileId", profile.getId());
+            prepareCoursePage(model, profile);
         });
         model.addAttribute("courseForm", courseForm);
-        model.addAttribute("years", prepareYearsList());
         return "edit/courses";
     }
 
+    private void prepareCoursePage(Model model, Profile profile) {
+        model.addAttribute("profileId", profile.getId());
+        model.addAttribute("years", prepareYearsList());
+    }
+
     @PostMapping("/edit/courses")
-    public String editCourses(@Valid @ModelAttribute("courseFrom") CourseForm courseFrom, BindingResult bindingResult) {
+    public String editCourses(@Valid @ModelAttribute("courseFrom") CourseForm courseForm, BindingResult bindingResult, Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
+            byId.ifPresent(profile -> {
+                prepareCoursePage(model, profile);
+            });
             return "edit/courses";
         }
-        List<Course> courses = courseFrom.getCourses();
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+        List<Course> courses = courseForm.getCourses();
+        byId.ifPresent(profile -> {
             profile.setCourses(courses);
             profileRepository.save(profile);
         });
@@ -269,21 +301,29 @@ public class EditDataController {
         EducationForm educationForm = new EducationForm();
         byId.ifPresent(profile -> {
             educationForm.setEducations(profile.getEducations());
-            model.addAttribute("profileId", profile.getId());
+            prepareEducationPage(model, profile);
         });
         model.addAttribute("educationForm", educationForm);
-        model.addAttribute("years", prepareYearsList());
         return "edit/education";
     }
 
+    private void prepareEducationPage(Model model, Profile profile) {
+        model.addAttribute("profileId", profile.getId());
+        model.addAttribute("years", prepareYearsList());
+    }
+
     @PostMapping("/edit/education")
-    public String editEducation(@Valid @ModelAttribute("educationForm") EducationForm educationForm, BindingResult bindingResult) {
+    public String editEducation(@Valid @ModelAttribute("educationForm") EducationForm educationForm, BindingResult bindingResult, Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
+            byId.ifPresent(profile -> {
+                prepareEducationPage(model, profile);
+            });
             return "edit/education";
         }
         List<Education> educations = educationForm.getEducations();
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+        byId.ifPresent(profile -> {
             profile.setEducations(educations);
             profileRepository.save(profile);
         });
@@ -295,23 +335,31 @@ public class EditDataController {
         Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         LanguageForm languageForm = new LanguageForm();
         byId.ifPresent(profile -> {
+            prepareLanguagesPage(model, profile);
             languageForm.setLanguages(profile.getLanguages());
-            model.addAttribute("profileId", profile.getId());
         });
         model.addAttribute("languageForm", languageForm);
-        model.addAttribute("languageTypes", EnumSet.allOf(LanguageType.class));
-        model.addAttribute("languageLevels", EnumSet.allOf(LanguageLevel.class));
         return "edit/languages";
     }
 
+    private void prepareLanguagesPage(Model model, Profile profile) {
+        model.addAttribute("profileId", profile.getId());
+        model.addAttribute("languageTypes", EnumSet.allOf(LanguageType.class));
+        model.addAttribute("languageLevels", EnumSet.allOf(LanguageLevel.class));
+    }
+
     @PostMapping("/edit/languages")
-    public String editLanguages(@Valid @ModelAttribute("languageForm") LanguageForm languageForm, BindingResult bindingResult) {
+    public String editLanguages(@Valid @ModelAttribute("languageForm") LanguageForm languageForm, BindingResult bindingResult, Model model) {
+        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
+            byId.ifPresent(profile -> {
+                prepareLanguagesPage(model, profile);
+            });
             return "edit/languages";
         }
         List<Language> languages = languageForm.getLanguages();
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
+        byId.ifPresent(profile -> {
             profile.setLanguages(languages);
             profileRepository.save(profile);
         });
@@ -319,15 +367,13 @@ public class EditDataController {
     }
 
     @GetMapping("/edit/hobbies")
-    public String getEditHobbies(Model model) {
+    public String getEditHobbies(@Value("${profiles.hobby.max}") int maxHobbies, Model model) {
         Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
         Set<Hobby> hobbies = new TreeSet<>();
         if (byId.isPresent()) {
             List<Hobby> hobbyList = byId.get().getHobbies();
-            //log.debug("Hobbies list by profile: " + hobbyList);
             hobbies = hobbyService.getAllHobbiesListWithSelected(hobbyList);
         }
-        int maxHobbies = 5;
         model.addAttribute("maxHobbies", maxHobbies);
         model.addAttribute("hobbies", hobbies);
         return "edit/hobbies";
@@ -339,7 +385,6 @@ public class EditDataController {
         if (byId.isPresent()) {
             Profile profile = byId.get();
             List<Hobby> hobbiesByName = hobbyService.getHobbiesByName(hobbies, profile);
-            //log.debug("hobbiesByName: " + hobbiesByName);
             profile.setHobbies(hobbiesByName);
             profileRepository.save(profile);
         }

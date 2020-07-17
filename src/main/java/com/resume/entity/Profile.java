@@ -38,12 +38,12 @@ public class Profile implements Serializable {
     private String firstName;
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
-    @Adulthood
     @Column(name = "birth_day")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date birthDay;
     @Transient
+    @Adulthood
     private Integer age;
     @Column(length = 60)
     private String country;

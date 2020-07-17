@@ -15,7 +15,9 @@
 		</c:if>
 		<%--@elvariable id="profileForm" type="com.resume.entity.Profile"--%>
 		<form:form modelAttribute="profileForm" action="/edit" method="post" cssClass="form-horizontal data-form" enctype="multipart/form-data">
-
+			<form:hidden path="firstName"/>
+			<form:hidden path="lastName"/>
+			<form:hidden path="largePhoto"/>
 			<div class="form-group">
 				<label for="profilePhoto" class="col-sm-2 control-label">Фото*</label>
 				<div class="col-sm-5">
@@ -36,6 +38,11 @@
 				<label for="inputBirthDay" class="col-sm-2 control-label">Дата рождение*</label>
 				<div class="col-sm-5">
 					<form:input path="birthDay" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="inputBirthDay" placeholder="Example: 1990-12-31" required="required" />
+					<div class="row skill-delim">
+						<div class="col-xs-offset-5 col-sm-offset-4 col-md-offset-2 col-xs-7 col-sm-8 col-md-10" style="padding-left:0px;">
+							<form:errors path="age" cssClass="alert alert-danger" element="div" />
+						</div>
+					</div>
 				</div>
 				<div class="col-sm-5 help-block">
 					<blockquote>Формат даты: yyyy-mm-dd (четыре цифры года - код месяца - день рождения)</blockquote>

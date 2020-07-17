@@ -1,5 +1,7 @@
 package com.resume.annotation.constraints;
 
+import com.resume.validator.AdulthoodConstraintValidator;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
@@ -13,7 +15,7 @@ import java.lang.annotation.Target;
 @Target({METHOD, CONSTRUCTOR, FIELD, ANNOTATION_TYPE, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = {})
+@Constraint(validatedBy = {AdulthoodConstraintValidator.class})
 public @interface Adulthood {
     String message() default "Adulthood";
 
