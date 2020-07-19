@@ -100,5 +100,10 @@
                             placeholder="Example: https://github.com/carlosray/resume"/>
             </div>
         </div>
+        <div class="row skill-delim">
+            <div class="col-xs-offset-5 col-sm-offset-4 col-md-offset-2 col-xs-7 col-sm-8 col-md-10" style="padding-left:0px;">
+                <form:errors path="practics[${index}]*" cssClass="alert alert-danger" element="div" />
+            </div>
+        </div>
     </div>
 </div>

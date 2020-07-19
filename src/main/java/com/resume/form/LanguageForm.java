@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,6 @@ import java.util.List;
 @ToString
 public class LanguageForm implements Serializable {
     private static final long serialVersionUID = 7791224905534393509L;
-
+    @Valid
     private List<Language> languages = new ArrayList<>();
 }

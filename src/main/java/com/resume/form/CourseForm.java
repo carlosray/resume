@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,6 @@ import java.util.List;
 @ToString
 public class CourseForm implements Serializable {
     private static final long serialVersionUID = -484530273741077791L;
-
+    @Valid
     List<Course> courses = new ArrayList<>();
 }

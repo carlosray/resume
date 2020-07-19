@@ -1,8 +1,13 @@
 package com.resume.entity;
 
+import com.resume.annotation.constraints.BeginDateLessFinishDate;
+import com.resume.annotation.constraints.EnglishLanguage;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.PastOrPresent;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,6 +20,7 @@ import java.util.Date;
 @ToString(exclude = "profile")
 @NoArgsConstructor
 @Entity
+@BeginDateLessFinishDate(firstFieldName = "beginDate", secondFieldName = "finishDate")
 public class Practic extends BeginAndFinishDateModel implements Serializable {
     private static final long serialVersionUID = 1416530477224390885L;
 
@@ -26,14 +32,20 @@ public class Practic extends BeginAndFinishDateModel implements Serializable {
     @JoinColumn(name = "id_profile", nullable = false)
     private Profile profile;
     @Column(length = 100)
+    @EnglishLanguage
+    @NotNull
     private String position;
     @Column(length = 100)
+    @EnglishLanguage
     private String company;
     @Column(name = "begin_date")
     @Temporal(TemporalType.DATE)
+    @Past
+    @NotNull
     private Date beginDate;
     @Column(name = "finish_date")
     @Temporal(TemporalType.DATE)
+    @PastOrPresent
     private Date finishDate;
     @Column(length = 2147483647)
     private String responsibilities;

@@ -1,5 +1,6 @@
 package com.resume.entity;
 
+import com.resume.annotation.constraints.BeginDateLessFinishDate;
 import lombok.*;
 import lombok.extern.log4j.Log4j;
 
@@ -11,7 +12,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "profile")
+@EqualsAndHashCode(exclude = "profile", callSuper = false)
 @ToString(exclude = "profile")
 @NoArgsConstructor
 @Entity

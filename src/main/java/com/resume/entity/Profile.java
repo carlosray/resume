@@ -1,10 +1,15 @@
 package com.resume.entity;
 
 import com.resume.annotation.constraints.Adulthood;
+import com.resume.annotation.constraints.EnglishLanguage;
+import com.resume.annotation.constraints.PasswordStrengthConstraint;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.PastOrPresent;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -35,9 +40,13 @@ public class Profile implements Serializable {
     @Column(unique = true)
     private String uid;
     @Column(name = "first_name", nullable = false, length = 50)
+    @EnglishLanguage
     private String firstName;
     @Column(name = "last_name", nullable = false, length = 50)
+    @EnglishLanguage
     private String lastName;
+    @NotNull
+    @Past
     @Column(name = "birth_day")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
@@ -46,10 +55,13 @@ public class Profile implements Serializable {
     @Adulthood
     private Integer age;
     @Column(length = 60)
+    @EnglishLanguage
     private String country;
     @Column(length = 100)
+    @EnglishLanguage
     private String city;
     @Column(length = 2147483647)
+    @EnglishLanguage
     private String objective;
     @Column(length = 2147483647)
     private String summary;
@@ -60,9 +72,11 @@ public class Profile implements Serializable {
     @Column(length = 2147483647)
     private String info;
     @Column
+    @PasswordStrengthConstraint
     private String password;
     @Column
     private boolean completed;
+    @PastOrPresent
     @Column(insertable = false)
     //@Temporal(TemporalType.TIMESTAMP)
     private Timestamp created;

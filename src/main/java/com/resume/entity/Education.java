@@ -1,7 +1,7 @@
 package com.resume.entity;
 
+import com.resume.annotation.constraints.BeginDateLessFinishDate;
 import lombok.*;
-import lombok.extern.log4j.Log4j;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,6 +12,7 @@ import java.io.Serializable;
 @ToString(exclude = "profile")
 @NoArgsConstructor
 @Entity
+@BeginDateLessFinishDate(firstFieldName = "beginYear", secondFieldName = "finishYear")
 public class Education implements Serializable {
     private static final long serialVersionUID = 1416530477224390885L;
 
