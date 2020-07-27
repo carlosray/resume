@@ -20,8 +20,9 @@ public class AdulthoodConstraintValidator implements ConstraintValidator<Adultho
 
     @Override
     public boolean isValid(Integer age, ConstraintValidatorContext constraintValidatorContext) {
-//        LocalDate localBirthDate = convertToLocalDateViaInstant(date);
-//        int age = calculateAge(localBirthDate, LocalDate.now());
+        if (age == null) {
+            return true;
+        }
         return adulthoodAge <= age;
     }
 

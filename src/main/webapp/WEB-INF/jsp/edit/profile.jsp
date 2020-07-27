@@ -35,7 +35,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="inputBirthDay" class="col-sm-2 control-label">Дата рождение*</label>
+				<label for="inputBirthDay" class="col-sm-2 control-label">Дата рождения*</label>
 				<div class="col-sm-5">
 					<form:input path="birthDay" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="inputBirthDay" placeholder="Example: 1990-12-31" required="required" />
 					<div class="row skill-delim">

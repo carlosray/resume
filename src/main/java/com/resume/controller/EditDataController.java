@@ -112,7 +112,7 @@ public class EditDataController {
             }
             profileRepository.save(currentProfile);
         }
-        return "/edit/contacts";
+        return "redirect:/edit/contacts";
     }
 
     public boolean checkNullAndEquals(Object formObj, Object currentProfileObj) {
@@ -138,7 +138,7 @@ public class EditDataController {
             profile.setContactsProfile(contactsForm);
             profileRepository.save(profile);
         });
-        return "edit/skills";
+        return "redirect:edit/skills";
     }
 
     @GetMapping("/edit/skills")
@@ -429,7 +429,7 @@ public class EditDataController {
             debugBindingMessage(bindingResult);
             return "password";
         }
-        return "my-profile";
+        return "redirect:/my-profile";
     }
 
     @RequestMapping(value = "/my-profile")

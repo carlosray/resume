@@ -48,7 +48,7 @@ public class ImageServiceImpl implements ImageService {
 
             response.setLargeUrl(largeLink);
             response.setSmallUrl(smallLink);
-            response.setCertificateName(certificateName);
+            response.setImageName(certificateName);
         } catch (Exception e) {
             throw new RuntimeException("Can`t process certificate: " + e.getMessage(), e);
         }
