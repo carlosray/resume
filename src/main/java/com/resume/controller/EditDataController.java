@@ -6,9 +6,7 @@ import com.resume.model.LanguageLevel;
 import com.resume.model.LanguageType;
 import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
-import com.resume.service.HobbyService;
-import com.resume.service.ImageService;
-import com.resume.service.ImageType;
+import com.resume.service.*;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,24 +21,21 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.time.Year;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Controller
 @Log4j
 public class EditDataController {
 
-    private SkillCategoryRepository skillCategoryRepository;
-    private ProfileRepository profileRepository;
-    private ImageService imageService;
-    private HobbyService hobbyService;
-    //TODO изменить id профиля на текущего пользователя
-    private final static Long CURRENT_PROFILE_ID = 13L;
+    private final ImageService imageService;
+    private final HobbyService hobbyService;
+    private final EditDataService editDataService;
 
     @Autowired
-    public EditDataController(SkillCategoryRepository skillCategoryRepository, ProfileRepository profileRepository, ImageService imageService, HobbyService hobbyService) {
-        this.skillCategoryRepository = skillCategoryRepository;
-        this.profileRepository = profileRepository;
+    public EditDataController(ImageService imageService, HobbyService hobbyService, EditDataService editDataService) {
         this.imageService = imageService;
         this.hobbyService = hobbyService;
+        this.editDataService = editDataService;
     }
 
     @InitBinder
@@ -52,135 +47,71 @@ public class EditDataController {
 
     @GetMapping("/edit")
     public String getEditPage(Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        byId.ifPresent(profile -> {
-            model.addAttribute("profileForm", profile);
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        model.addAttribute("profileForm", currentProfile);
         return "edit/profile";
     }
 
     @PostMapping("/edit")
-    public String editProcess(@Valid @ModelAttribute("profileForm") Profile profileForm, BindingResult bindingResult, @RequestParam("profilePhoto") MultipartFile profilePhoto, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+    public String editProcess(@Valid @ModelAttribute("profileForm") Profile profileForm, BindingResult bindingResult, @RequestParam("profilePhoto") MultipartFile profilePhoto) {
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "edit/profile";
         }
-
-        if (!profilePhoto.isEmpty()) {
-            UploadImageResponse uploadImageResponse = imageService.processImage(profilePhoto, ImageType.AVATAR);
-            String largeUrl = uploadImageResponse.getLargeUrl();
-            String smallUrl = uploadImageResponse.getSmallUrl();
-            profileForm.setLargePhoto(largeUrl);
-            profileForm.setSmallPhoto(smallUrl);
-        }
-
-        if (byId.isPresent()) {
-            Profile currentProfile = byId.get();
-            if (profileForm.getLargePhoto() != null && profileForm.getSmallPhoto() != null) {
-                currentProfile.setSmallPhoto(profileForm.getSmallPhoto());
-                currentProfile.setLargePhoto(profileForm.getLargePhoto());
-            }
-
-            Date birthDayForm = profileForm.getBirthDay();
-            if (checkNullAndEquals(birthDayForm, currentProfile.getBirthDay())) {
-                currentProfile.setBirthDay(birthDayForm);
-            }
-            String countryForm = profileForm.getCountry();
-            if (checkNullAndEquals(countryForm, currentProfile.getCountry())) {
-                currentProfile.setCountry(countryForm);
-            }
-            String cityForm = profileForm.getCity();
-            if (checkNullAndEquals(cityForm, currentProfile.getCity())) {
-                currentProfile.setCity(cityForm);
-            }
-            String emailForm = profileForm.getContactsProfile().getEmail();
-            if (checkNullAndEquals(emailForm, currentProfile.getContactsProfile().getEmail())) {
-                currentProfile.getContactsProfile().setEmail(emailForm);
-            }
-            String phoneForm = profileForm.getContactsProfile().getPhone();
-            if (checkNullAndEquals(phoneForm, currentProfile.getContactsProfile().getPhone())) {
-                currentProfile.getContactsProfile().setPhone(phoneForm);
-            }
-            String objectiveForm = profileForm.getObjective();
-            if (checkNullAndEquals(objectiveForm, currentProfile.getObjective())) {
-                currentProfile.setObjective(objectiveForm);
-            }
-            String summaryForm = profileForm.getSummary();
-            if (checkNullAndEquals(summaryForm, currentProfile.getSummary())) {
-                currentProfile.setSummary(summaryForm);
-            }
-            profileRepository.save(currentProfile);
-        }
+        editDataService.updateProfile(currentProfile, profileForm, profilePhoto);
         return "redirect:/edit/contacts";
-    }
-
-    public boolean checkNullAndEquals(Object formObj, Object currentProfileObj) {
-        return formObj != null && !formObj.equals(currentProfileObj);
     }
 
     @GetMapping("/edit/contacts")
     public String getEditContacts(Model model) {
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
-            model.addAttribute("contactsForm", profile.getContactsProfile());
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        model.addAttribute("contactsForm", currentProfile.getContactsProfile());
         return "edit/contacts";
     }
 
     @PostMapping("/edit/contacts")
     public String editContacts(@Valid @ModelAttribute("contactsForm") ContactsProfile contactsForm, BindingResult bindingResult, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "edit/contacts";
         }
-        byId.ifPresent(profile -> {
-            profile.setContactsProfile(contactsForm);
-            profileRepository.save(profile);
-        });
+        editDataService.updateContacts(currentProfile, contactsForm);
         return "redirect:edit/skills";
     }
 
     @GetMapping("/edit/skills")
     public String getEditSkills(Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        SkillForm skillForm = new SkillForm();
-        byId.ifPresent(profile -> {
-            skillForm.setSkills(profile.getSkills());
-            model.addAttribute("skillForm", skillForm);
-            prepareSkillsPage(model);
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        SkillForm skillForm = new SkillForm(currentProfile.getSkills());
+        model.addAttribute("skillForm", skillForm);
+        prepareSkillsPage(model);
         return "edit/skills";
     }
 
     private void prepareSkillsPage(Model model) {
-        model.addAttribute("skillCategories", skillCategoryRepository.findAll());
+        model.addAttribute("skillCategories", editDataService.getAllSkillCategories());
     }
 
     @PostMapping("/edit/skills")
     public String editSkills(@Valid @ModelAttribute("skillForm") SkillForm skillForm, BindingResult bindingResult, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             prepareSkillsPage(model);
             return "edit/skills";
         }
-        List<Skill> skills = skillForm.getSkills();
-        byId.ifPresent(profile -> {
-            profile.setSkills(skills);
-            profileRepository.save(profile);
-        });
+        editDataService.updateSkills(currentProfile, skillForm);
         return "redirect:/edit/practics";
     }
 
     @GetMapping("/edit/practics")
     public String getEditPractics(Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        PracticsForm practicsForm = new PracticsForm();
-        byId.ifPresent(profile -> {
-            practicsForm.setPractics(profile.getPractics());
-            preparePracticsPage(model, profile);
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        PracticsForm practicsForm = new PracticsForm(currentProfile.getPractics());
+        preparePracticsPage(model, currentProfile);
+        model.addAttribute("practicsForm", practicsForm);
         return "edit/practics";
     }
 
@@ -202,30 +133,21 @@ public class EditDataController {
 
     @PostMapping("/edit/practics")
     public String editPractics(@Valid @ModelAttribute("practicsForm") PracticsForm practicsForm, BindingResult bindingResult, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
-            byId.ifPresent(profile -> {
-                preparePracticsPage(model, profile);
-            });
+            preparePracticsPage(model, currentProfile);
             return "edit/practics";
         }
-        List<Practic> practics = practicsForm.getPractics();
-        byId.ifPresent(profile -> {
-            profile.setPractics(practics);
-            profileRepository.save(profile);
-        });
+        editDataService.updatePractics(currentProfile, practicsForm);
         return "redirect:/edit/certificates";
     }
 
     @GetMapping("/edit/certificates")
     public String getEditCertificates(Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        CertificateForm certificateForm = new CertificateForm();
-        byId.ifPresent(profile -> {
-            certificateForm.setCertificates(profile.getCertificates());
-            prepareCertificatePage(model, profile);
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        CertificateForm certificateForm = new CertificateForm(currentProfile.getCertificates());
+        prepareCertificatePage(model, currentProfile);
         model.addAttribute("certificateForm", certificateForm);
         return "edit/certificates";
     }
@@ -236,19 +158,13 @@ public class EditDataController {
 
     @PostMapping("/edit/certificates")
     public String editCertificates(@Valid @ModelAttribute("certificateForm") CertificateForm certificateForm, BindingResult bindingResult, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
-            byId.ifPresent(profile -> {
-                prepareCertificatePage(model, profile);
-            });
+            prepareCertificatePage(model, currentProfile);
             return "edit/certificates";
         }
-        List<Certificate> certificates = certificateForm.getCertificates();
-        byId.ifPresent(profile -> {
-            profile.setCertificates(certificates);
-            profileRepository.save(profile);
-        });
+        editDataService.updateCertificates(currentProfile, certificateForm);
         return "redirect:/edit/courses";
     }
 
@@ -256,18 +172,14 @@ public class EditDataController {
     public @ResponseBody
     UploadImageResponse editCertificatesUpload(@RequestParam("certificateFile") MultipartFile certificateFile) {
         UploadImageResponse response = imageService.processImage(certificateFile, ImageType.CERTIFICATES);
-        log.debug("New Certificate uploaded: " + response.getLargeUrl());
         return response;
     }
 
     @GetMapping("/edit/courses")
     public String getEditCourses(Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        CourseForm courseForm = new CourseForm();
-        byId.ifPresent(profile -> {
-            courseForm.setCourses(profile.getCourses());
-            prepareCoursePage(model, profile);
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        CourseForm courseForm = new CourseForm(currentProfile.getCourses());
+        prepareCoursePage(model, currentProfile);
         model.addAttribute("courseForm", courseForm);
         return "edit/courses";
     }
@@ -279,30 +191,21 @@ public class EditDataController {
 
     @PostMapping("/edit/courses")
     public String editCourses(@Valid @ModelAttribute("courseFrom") CourseForm courseForm, BindingResult bindingResult, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
-            byId.ifPresent(profile -> {
-                prepareCoursePage(model, profile);
-            });
+            prepareCoursePage(model, currentProfile);
             return "edit/courses";
         }
-        List<Course> courses = courseForm.getCourses();
-        byId.ifPresent(profile -> {
-            profile.setCourses(courses);
-            profileRepository.save(profile);
-        });
+        editDataService.updateCourses(currentProfile, courseForm);
         return "redirect:/edit/education";
     }
 
     @GetMapping("/edit/education")
     public String getEditEducation(Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        EducationForm educationForm = new EducationForm();
-        byId.ifPresent(profile -> {
-            educationForm.setEducations(profile.getEducations());
-            prepareEducationPage(model, profile);
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        EducationForm educationForm = new EducationForm(currentProfile.getEducations());
+        prepareEducationPage(model, currentProfile);
         model.addAttribute("educationForm", educationForm);
         return "edit/education";
     }
@@ -314,30 +217,21 @@ public class EditDataController {
 
     @PostMapping("/edit/education")
     public String editEducation(@Valid @ModelAttribute("educationForm") EducationForm educationForm, BindingResult bindingResult, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
-            byId.ifPresent(profile -> {
-                prepareEducationPage(model, profile);
-            });
+            prepareEducationPage(model, currentProfile);
             return "edit/education";
         }
-        List<Education> educations = educationForm.getEducations();
-        byId.ifPresent(profile -> {
-            profile.setEducations(educations);
-            profileRepository.save(profile);
-        });
+        editDataService.updateEducation(currentProfile, educationForm);
         return "redirect:/edit/languages";
     }
 
     @GetMapping("/edit/languages")
     public String getEditLanguages(Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        LanguageForm languageForm = new LanguageForm();
-        byId.ifPresent(profile -> {
-            prepareLanguagesPage(model, profile);
-            languageForm.setLanguages(profile.getLanguages());
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        LanguageForm languageForm = new LanguageForm(currentProfile.getLanguages());
+        prepareLanguagesPage(model, currentProfile);
         model.addAttribute("languageForm", languageForm);
         return "edit/languages";
     }
@@ -350,30 +244,21 @@ public class EditDataController {
 
     @PostMapping("/edit/languages")
     public String editLanguages(@Valid @ModelAttribute("languageForm") LanguageForm languageForm, BindingResult bindingResult, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
-            byId.ifPresent(profile -> {
-                prepareLanguagesPage(model, profile);
-            });
+            prepareLanguagesPage(model, currentProfile);
             return "edit/languages";
         }
-        List<Language> languages = languageForm.getLanguages();
-        byId.ifPresent(profile -> {
-            profile.setLanguages(languages);
-            profileRepository.save(profile);
-        });
+        editDataService.updateLanguages(currentProfile, languageForm);
         return "redirect:/edit/hobbies";
     }
 
     @GetMapping("/edit/hobbies")
     public String getEditHobbies(@Value("${profiles.hobby.max}") int maxHobbies, Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        Set<Hobby> hobbies = new TreeSet<>();
-        if (byId.isPresent()) {
-            List<Hobby> hobbyList = byId.get().getHobbies();
-            hobbies = hobbyService.getAllHobbiesListWithSelected(hobbyList);
-        }
+        Profile currentProfile = editDataService.getCurrentProfile();
+        List<Hobby> hobbyList = currentProfile.getHobbies();
+        Set<Hobby> hobbies = hobbyService.getAllHobbiesListWithSelected(hobbyList);
         model.addAttribute("maxHobbies", maxHobbies);
         model.addAttribute("hobbies", hobbies);
         return "edit/hobbies";
@@ -381,38 +266,27 @@ public class EditDataController {
 
     @PostMapping("/edit/hobbies")
     public String editHobbies(@RequestParam("hobbies") List<String> hobbies) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        if (byId.isPresent()) {
-            Profile profile = byId.get();
-            List<Hobby> hobbiesByName = hobbyService.getHobbiesByName(hobbies, profile);
-            profile.setHobbies(hobbiesByName);
-            profileRepository.save(profile);
-        }
+        Profile currentProfile = editDataService.getCurrentProfile();
+        editDataService.updateHobbies(currentProfile, hobbies);
         return "redirect:/edit/info";
     }
 
     @GetMapping("/edit/info")
     public String getEditInfo(Model model) {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        InfoForm infoForm = new InfoForm();
-        byId.ifPresent(profile -> {
-            infoForm.setInfo(profile.getInfo());
-        });
+        Profile currentProfile = editDataService.getCurrentProfile();
+        InfoForm infoForm = new InfoForm(currentProfile.getInfo());
         model.addAttribute("infoForm", infoForm);
         return "edit/info";
     }
 
     @PostMapping("/edit/info")
     public String editInfo(@Valid @ModelAttribute("infoForm") InfoForm infoForm, BindingResult bindingResult) {
+        Profile currentProfile = editDataService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "edit/info";
         }
-        String info = infoForm.getInfo();
-        profileRepository.findById(CURRENT_PROFILE_ID).ifPresent(profile -> {
-            profile.setInfo(info);
-            profileRepository.save(profile);
-        });
+        editDataService.updateInfo(currentProfile, infoForm);
         return "redirect:/my-profile";
     }
 
@@ -429,18 +303,14 @@ public class EditDataController {
             debugBindingMessage(bindingResult);
             return "password";
         }
+        //TODO password hashing and saving
         return "redirect:/my-profile";
     }
 
     @RequestMapping(value = "/my-profile")
     public String getMyProfile() {
-        Optional<Profile> byId = profileRepository.findById(CURRENT_PROFILE_ID);
-        if (byId.isPresent()) {
-            Profile currentProfile = byId.get();
-            return "redirect:/" + currentProfile.getUid();
-        } else {
-            return "redirect:/";
-        }
+        Profile currentProfile = editDataService.getCurrentProfile();
+        return "redirect:/" + currentProfile.getUid();
     }
 
     private void debugBindingMessage(BindingResult bindingResult) {

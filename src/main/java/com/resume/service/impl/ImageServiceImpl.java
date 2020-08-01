@@ -52,6 +52,7 @@ public class ImageServiceImpl implements ImageService {
         } catch (Exception e) {
             throw new RuntimeException("Can`t process certificate: " + e.getMessage(), e);
         }
+        log.debug("New image uploaded: " + response.getLargeUrl());
         return response;
     }
 

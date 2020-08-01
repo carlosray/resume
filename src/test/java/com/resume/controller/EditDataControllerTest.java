@@ -6,6 +6,7 @@ import com.resume.entity.Profile;
 import com.resume.form.UploadImageResponse;
 import com.resume.repository.ProfileRepository;
 import com.resume.repository.SkillCategoryRepository;
+import com.resume.service.EditDataService;
 import com.resume.service.HobbyService;
 import com.resume.service.ImageService;
 import com.resume.service.ImageType;
@@ -26,7 +27,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.View;
 
 import java.text.ParseException;
@@ -54,9 +54,7 @@ public class EditDataControllerTest {
     @Mock
     HobbyService hobbyService;
     @Mock
-    ProfileRepository profileRepository;
-    @Mock
-    SkillCategoryRepository skillCategoryRepository;
+    EditDataService editDataService;
     @Mock
     Profile profile;
     @Mock
@@ -83,18 +81,19 @@ public class EditDataControllerTest {
         certificateFileMockMultipart = new MockMultipartFile("certificateFile", "test".getBytes());
         uploadImageResponse = new UploadImageResponse("Test_ImageName", "Test_00000000-0000-0000-0000-000000000000.jpg", "Test_00000000-0000-0000-0000-000000000000-sm.jpg");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        editDataController = new EditDataController(skillCategoryRepository, profileRepository, imageService, hobbyService);
-        profile.setContactsProfile(contactsProfile);
+        editDataController = new EditDataController(imageService, hobbyService, editDataService);
         prepareMockitoObjects();
         //инициализация mockMvc
         this.mockMvc = MockMvcBuilders.standaloneSetup(editDataController).setSingleView(mockView).build();
     }
 
     private void prepareMockitoObjects() {
-        //возвращаем Optional Profile
-        Mockito.when(profileRepository.findById(13L)).thenReturn(Optional.of(profile));
+        //возвращаем Profile
+        Mockito.when(editDataService.getCurrentProfile()).thenReturn(profile);
         //возвращаем uploadImageResponse, когда используется NameService
         Mockito.when(imageService.processImage(profilePhotoMockMultipart, ImageType.AVATAR)).thenReturn(uploadImageResponse);
+        //устанавливаем contactsProfile в Profile
+        Mockito.when(profile.getContactsProfile()).thenReturn(contactsProfile);
     }
 
     @Test
@@ -121,13 +120,13 @@ public class EditDataControllerTest {
                 .andExpect(model().attributeHasErrors("profileForm"))
                 .andExpect(view().name("edit/profile"));
 
-//        Profile editProfile = prepareEditProfile(new Profile());
-//        profilePhotoMultipart.flashAttr("profileForm", editProfile);
-//        System.out.println(editProfile);
-//        mockMvc.perform(profilePhotoMultipart)
-//                .andDo(print())
-//                .andExpect(status().is3xxRedirection())
-//                .andExpect(model().attributeHasNoErrors("profileForm"));
+        Profile editProfile = prepareEditProfile(new Profile());
+        profilePhotoMultipart.flashAttr("profileForm", editProfile);
+        System.out.println(editProfile);
+        mockMvc.perform(profilePhotoMultipart)
+                .andDo(print())
+                .andExpect(view().name("redirect:/edit/contacts"))
+                .andExpect(model().attributeHasNoErrors("profileForm"));
     }
 
     private Profile prepareEditProfile(Profile profile) throws ParseException {
