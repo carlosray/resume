@@ -1,5 +1,6 @@
 package com.resume.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.resume.annotation.constraints.BeginDateLessFinishDate;
 import lombok.*;
 import lombok.extern.log4j.Log4j;
@@ -23,13 +24,18 @@ public class Course extends BeginAndFinishDateModel implements Serializable {
     @SequenceGenerator(name="course_generator", sequenceName = "course_id_seq", allocationSize=1)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="course_generator")
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)
+    @JsonIgnore
     private Profile profile;
+
     @Column(length = 60)
     private String name;
+
     @Column(length = 60)
     private String school;
+
     @Column(name = "finish_date")
     @Temporal(TemporalType.DATE)
     private Date finishDate;

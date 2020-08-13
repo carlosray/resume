@@ -1,5 +1,6 @@
 package com.resume.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.resume.annotation.constraints.BeginDateLessFinishDate;
 import com.resume.annotation.constraints.EnglishLanguage;
 import lombok.*;
@@ -28,29 +29,38 @@ public class Practic extends BeginAndFinishDateModel implements Serializable {
     @SequenceGenerator(name="practic_generator", sequenceName = "practic_id_seq", allocationSize=1)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="practic_generator")
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)
+    @JsonIgnore
     private Profile profile;
+
     @Column(length = 100)
     @EnglishLanguage
     @NotNull
     private String position;
+
     @Column(length = 100)
     @EnglishLanguage
     private String company;
+
     @Column(name = "begin_date")
     @Temporal(TemporalType.DATE)
     @Past
     @NotNull
     private Date beginDate;
+
     @Column(name = "finish_date")
     @Temporal(TemporalType.DATE)
     @PastOrPresent
     private Date finishDate;
+
     @Column(length = 2147483647)
     private String responsibilities;
+
     @Column
     private String demo;
+
     @Column
     private String src;
 

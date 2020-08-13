@@ -20,11 +20,14 @@ public class Hobby implements Serializable, Comparable<Hobby> {
     @SequenceGenerator(name="hobby_generator", sequenceName = "hobby_id_seq", allocationSize=1)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="hobby_generator")
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)
     private Profile profile;
+
     @Column(length = 30)
     private String name;
+
     @Transient
     private boolean selected;
 

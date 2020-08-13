@@ -4,12 +4,7 @@ package com.resume.controller;
 import com.resume.entity.ContactsProfile;
 import com.resume.entity.Profile;
 import com.resume.form.UploadImageResponse;
-import com.resume.repository.ProfileRepository;
-import com.resume.repository.SkillCategoryRepository;
-import com.resume.service.EditDataService;
-import com.resume.service.HobbyService;
-import com.resume.service.ImageService;
-import com.resume.service.ImageType;
+import com.resume.service.*;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +26,10 @@ import org.springframework.web.servlet.View;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -56,6 +51,8 @@ public class EditDataControllerTest {
     @Mock
     EditDataService editDataService;
     @Mock
+    SearchService searchService;
+    @Mock
     Profile profile;
     @Mock
     ContactsProfile contactsProfile;
@@ -73,7 +70,7 @@ public class EditDataControllerTest {
     private WebApplicationContext webAppContext;
 
     @Before
-    public void setUp() throws ParseException {
+    public void setUp() {
         //Инициализация Mock
         MockitoAnnotations.initMocks(this);
         //инициализация полей
@@ -81,7 +78,7 @@ public class EditDataControllerTest {
         certificateFileMockMultipart = new MockMultipartFile("certificateFile", "test".getBytes());
         uploadImageResponse = new UploadImageResponse("Test_ImageName", "Test_00000000-0000-0000-0000-000000000000.jpg", "Test_00000000-0000-0000-0000-000000000000-sm.jpg");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        editDataController = new EditDataController(imageService, hobbyService, editDataService);
+        editDataController = new EditDataController(imageService, hobbyService, editDataService, searchService);
         prepareMockitoObjects();
         //инициализация mockMvc
         this.mockMvc = MockMvcBuilders.standaloneSetup(editDataController).setSingleView(mockView).build();
@@ -89,7 +86,7 @@ public class EditDataControllerTest {
 
     private void prepareMockitoObjects() {
         //возвращаем Profile
-        Mockito.when(editDataService.getCurrentProfile()).thenReturn(profile);
+        Mockito.when(searchService.getCurrentProfile()).thenReturn(profile);
         //возвращаем uploadImageResponse, когда используется NameService
         Mockito.when(imageService.processImage(profilePhotoMockMultipart, ImageType.AVATAR)).thenReturn(uploadImageResponse);
         //устанавливаем contactsProfile в Profile

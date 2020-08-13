@@ -1,36 +1,37 @@
 package com.resume.controller;
 
 import com.resume.entity.Profile;
-import com.resume.repository.ProfileRepository;
-import com.resume.service.PublicDataService;
-import lombok.extern.log4j.Log4j;
+import com.resume.service.SearchService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 @Controller
 public class PublicDataController {
 
-    private PublicDataService publicDataService;
+    private SearchService searchService;
 
     @Value("${profiles.perPage}")
     private int profilesPerPage;
 
     @Autowired
-    public PublicDataController(PublicDataService publicDataService) {
-        this.publicDataService = publicDataService;
+    public PublicDataController(SearchService searchService) {
+        this.searchService = searchService;
     }
 
     @RequestMapping("/{uid}")
     public String getProfile(@PathVariable String uid, Model model) {
-        Profile byUid = publicDataService.findProfileByUid(uid);
+        Profile byUid = searchService.findProfileByUid(uid);
         if (byUid == null) {
             return "profile-not-found";
         }
@@ -40,8 +41,8 @@ public class PublicDataController {
 
     @RequestMapping("/welcome")
     public String getWelcome(Model model) {
-        PageRequest pageRequest = PageRequest.of(0, profilesPerPage, Sort.by("id").descending());
-        Page<Profile> profilePage = publicDataService.getProfilePage(pageRequest);
+        PageRequest pageRequest = getPageRequestForProfiles(0);
+        Page<Profile> profilePage = searchService.findAllProfilesPage(pageRequest);
         model.addAttribute("profilePage", profilePage);
         model.addAttribute("profiles", profilePage.getContent());
         return "welcome";
@@ -49,15 +50,27 @@ public class PublicDataController {
 
     @GetMapping("/fragment/more")
     public String getMoreProfiles(@RequestParam("page") int page, Model model) {
-        PageRequest pageRequest = PageRequest.of(page, profilesPerPage, Sort.by("id").descending());
-        Page<Profile> profilePage = publicDataService.getProfilePage(pageRequest);
+        PageRequest pageRequest = getPageRequestForProfiles(page);
+        Page<Profile> profilePage = searchService.findAllProfilesPage(pageRequest);
         model.addAttribute("profiles", profilePage.getContent());
         return "fragment/profile-items";
     }
 
     @GetMapping("/search")
-    public String search() {
-        return "search";
+    public String search(@RequestParam(value = "query", required = false) String query, Model model) throws UnsupportedEncodingException {
+        PageRequest pageRequest = getPageRequestForProfiles(0);
+        if (StringUtils.isBlank(query)) {
+            return "redirect:/welcome";
+        }
+        Page<Profile> profilePage = searchService.findBySearchQuery(query, pageRequest);
+        model.addAttribute("profilePage", profilePage);
+        model.addAttribute("profiles", profilePage.getContent());
+        model.addAttribute("query", URLDecoder.decode(query, "UTF-8"));
+        return "search-result";
+    }
+
+    private PageRequest getPageRequestForProfiles(int page) {
+        return new PageRequest(page, profilesPerPage, new Sort(Sort.Direction.DESC, "id"));
     }
 
     @GetMapping("/sign-in")

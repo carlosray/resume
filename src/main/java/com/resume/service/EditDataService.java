@@ -2,16 +2,12 @@ package com.resume.service;
 
 import com.resume.entity.ContactsProfile;
 import com.resume.entity.Profile;
-import com.resume.entity.SkillCategory;
-import com.resume.exception.ProfileNotFoundException;
 import com.resume.form.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface EditDataService {
-    Profile getCurrentProfile() throws ProfileNotFoundException;
-    Iterable<SkillCategory> getAllSkillCategories();
     void updateProfile(Profile updatableProfile, Profile profileForm);
     void updateProfile(Profile updatableProfile, Profile profileForm, MultipartFile profilePhoto);
     void updateContacts(Profile updatableProfile, ContactsProfile contactsForm);

@@ -1,47 +1,38 @@
 package com.resume.service.impl;
 
 import com.resume.entity.*;
-import com.resume.exception.ProfileNotFoundException;
+import com.resume.event.UpdateProfileEvent;
 import com.resume.form.*;
-import com.resume.repository.ProfileRepository;
-import com.resume.repository.SkillCategoryRepository;
-import com.resume.service.*;
+import com.resume.repository.storage.ProfileRepository;
+import com.resume.service.EditDataService;
+import com.resume.service.HobbyService;
+import com.resume.service.ImageService;
+import com.resume.service.ImageType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EditDataServiceImpl implements EditDataService {
 
     //repo
     private final ProfileRepository profileRepository;
-    private final SkillCategoryRepository skillCategoryRepository;
     //services
     private final ImageService imageService;
-    private final SecurityService securityService;
     private final HobbyService hobbyService;
+    private final ApplicationEventPublisher publisher;
 
     @Autowired
-    public EditDataServiceImpl(ImageService imageService, ProfileRepository profileRepository, SkillCategoryRepository skillCategoryRepository, SecurityService securityService, HobbyService hobbyService) {
+    public EditDataServiceImpl(ImageService imageService, ProfileRepository profileRepository, HobbyService hobbyService, ApplicationEventPublisher publisher) {
         this.imageService = imageService;
         this.profileRepository = profileRepository;
-        this.skillCategoryRepository = skillCategoryRepository;
-        this.securityService = securityService;
         this.hobbyService = hobbyService;
-    }
-
-    @Override
-    @Transactional
-    public Profile getCurrentProfile() throws ProfileNotFoundException {
-        Long currentProfileId = securityService.getCurrentProfileId();
-        Optional<Profile> byId = profileRepository.findById(currentProfileId);
-        if (!byId.isPresent()) throw new ProfileNotFoundException();
-        return byId.get();
+        this.publisher = publisher;
     }
 
     @Override
@@ -95,6 +86,11 @@ public class EditDataServiceImpl implements EditDataService {
             updatableProfile.setSummary(summaryForm);
         }
         profileRepository.save(updatableProfile);
+        registerEventForUpdateProfile(updatableProfile);
+    }
+
+    public void registerEventForUpdateProfile(Profile profile) {
+        publisher.publishEvent(new UpdateProfileEvent(profile));
     }
 
     private boolean notNullAndNotEquals(Object formObj, Object currentProfileObj) {
@@ -106,12 +102,6 @@ public class EditDataServiceImpl implements EditDataService {
     public void updateContacts(Profile updatableProfile, ContactsProfile contactsForm) {
         updatableProfile.setContactsProfile(contactsForm);
         profileRepository.save(updatableProfile);
-    }
-
-    @Override
-    @Transactional
-    public Iterable<SkillCategory> getAllSkillCategories() {
-        return skillCategoryRepository.findAll();
     }
 
     @Override
@@ -169,6 +159,5 @@ public class EditDataServiceImpl implements EditDataService {
         String info = infoForm.getInfo();
         updatableProfile.setInfo(info);
         profileRepository.save(updatableProfile);
-
     }
 }

@@ -1,4 +1,4 @@
-package com.resume.repository;
+package com.resume.repository.storage;
 
 import com.resume.entity.SkillCategory;
 import org.springframework.data.repository.PagingAndSortingRepository;

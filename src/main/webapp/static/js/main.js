@@ -17,6 +17,11 @@ var resume = {
 	// 		});
 	// 	});
 	// }
+	logout : function (csrfToken){
+		resume.post('/logout', {
+			_csrf : csrfToken
+		});
+	},
 	initCertificateViewer : function() {
 		var path = $(this).attr("data-url");
 		$('.certificate-link').magnificPopup({

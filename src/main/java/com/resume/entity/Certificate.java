@@ -1,5 +1,6 @@
 package com.resume.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.extern.log4j.Log4j;
 import org.hibernate.annotations.GeneratorType;
@@ -20,13 +21,18 @@ public class Certificate implements Serializable {
     @SequenceGenerator(name="certificate_generator", sequenceName = "certificate_id_seq", allocationSize=1)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="certificate_generator")
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_profile", nullable = false)
+    @JsonIgnore
     private Profile profile;
+
     @Column(length = 50)
     private String name;
+
     @Column(name = "large_url")
     private String largeUrl;
+
     @Column(name = "small_url")
     private String smallUrl;
 

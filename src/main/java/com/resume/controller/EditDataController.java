@@ -4,8 +4,6 @@ import com.resume.entity.*;
 import com.resume.form.*;
 import com.resume.model.LanguageLevel;
 import com.resume.model.LanguageType;
-import com.resume.repository.ProfileRepository;
-import com.resume.repository.SkillCategoryRepository;
 import com.resume.service.*;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.time.Year;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Controller
 @Log4j
@@ -30,12 +27,14 @@ public class EditDataController {
     private final ImageService imageService;
     private final HobbyService hobbyService;
     private final EditDataService editDataService;
+    private final SearchService searchService;
 
     @Autowired
-    public EditDataController(ImageService imageService, HobbyService hobbyService, EditDataService editDataService) {
+    public EditDataController(ImageService imageService, HobbyService hobbyService, EditDataService editDataService, SearchService searchService) {
         this.imageService = imageService;
         this.hobbyService = hobbyService;
         this.editDataService = editDataService;
+        this.searchService = searchService;
     }
 
     @InitBinder
@@ -47,14 +46,14 @@ public class EditDataController {
 
     @GetMapping("/edit")
     public String getEditPage(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         model.addAttribute("profileForm", currentProfile);
         return "edit/profile";
     }
 
     @PostMapping("/edit")
     public String editProcess(@Valid @ModelAttribute("profileForm") Profile profileForm, BindingResult bindingResult, @RequestParam("profilePhoto") MultipartFile profilePhoto) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "edit/profile";
@@ -65,14 +64,14 @@ public class EditDataController {
 
     @GetMapping("/edit/contacts")
     public String getEditContacts(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         model.addAttribute("contactsForm", currentProfile.getContactsProfile());
         return "edit/contacts";
     }
 
     @PostMapping("/edit/contacts")
     public String editContacts(@Valid @ModelAttribute("contactsForm") ContactsProfile contactsForm, BindingResult bindingResult, Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "edit/contacts";
@@ -83,7 +82,7 @@ public class EditDataController {
 
     @GetMapping("/edit/skills")
     public String getEditSkills(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         SkillForm skillForm = new SkillForm(currentProfile.getSkills());
         model.addAttribute("skillForm", skillForm);
         prepareSkillsPage(model);
@@ -91,12 +90,12 @@ public class EditDataController {
     }
 
     private void prepareSkillsPage(Model model) {
-        model.addAttribute("skillCategories", editDataService.getAllSkillCategories());
+        model.addAttribute("skillCategories", searchService.getAllSkillCategories());
     }
 
     @PostMapping("/edit/skills")
     public String editSkills(@Valid @ModelAttribute("skillForm") SkillForm skillForm, BindingResult bindingResult, Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             prepareSkillsPage(model);
@@ -108,7 +107,7 @@ public class EditDataController {
 
     @GetMapping("/edit/practics")
     public String getEditPractics(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         PracticsForm practicsForm = new PracticsForm(currentProfile.getPractics());
         preparePracticsPage(model, currentProfile);
         model.addAttribute("practicsForm", practicsForm);
@@ -133,7 +132,7 @@ public class EditDataController {
 
     @PostMapping("/edit/practics")
     public String editPractics(@Valid @ModelAttribute("practicsForm") PracticsForm practicsForm, BindingResult bindingResult, Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             preparePracticsPage(model, currentProfile);
@@ -145,7 +144,7 @@ public class EditDataController {
 
     @GetMapping("/edit/certificates")
     public String getEditCertificates(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         CertificateForm certificateForm = new CertificateForm(currentProfile.getCertificates());
         prepareCertificatePage(model, currentProfile);
         model.addAttribute("certificateForm", certificateForm);
@@ -158,7 +157,7 @@ public class EditDataController {
 
     @PostMapping("/edit/certificates")
     public String editCertificates(@Valid @ModelAttribute("certificateForm") CertificateForm certificateForm, BindingResult bindingResult, Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             prepareCertificatePage(model, currentProfile);
@@ -177,7 +176,7 @@ public class EditDataController {
 
     @GetMapping("/edit/courses")
     public String getEditCourses(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         CourseForm courseForm = new CourseForm(currentProfile.getCourses());
         prepareCoursePage(model, currentProfile);
         model.addAttribute("courseForm", courseForm);
@@ -191,7 +190,7 @@ public class EditDataController {
 
     @PostMapping("/edit/courses")
     public String editCourses(@Valid @ModelAttribute("courseFrom") CourseForm courseForm, BindingResult bindingResult, Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             prepareCoursePage(model, currentProfile);
@@ -203,7 +202,7 @@ public class EditDataController {
 
     @GetMapping("/edit/education")
     public String getEditEducation(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         EducationForm educationForm = new EducationForm(currentProfile.getEducations());
         prepareEducationPage(model, currentProfile);
         model.addAttribute("educationForm", educationForm);
@@ -217,7 +216,7 @@ public class EditDataController {
 
     @PostMapping("/edit/education")
     public String editEducation(@Valid @ModelAttribute("educationForm") EducationForm educationForm, BindingResult bindingResult, Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             prepareEducationPage(model, currentProfile);
@@ -229,7 +228,7 @@ public class EditDataController {
 
     @GetMapping("/edit/languages")
     public String getEditLanguages(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         LanguageForm languageForm = new LanguageForm(currentProfile.getLanguages());
         prepareLanguagesPage(model, currentProfile);
         model.addAttribute("languageForm", languageForm);
@@ -244,7 +243,7 @@ public class EditDataController {
 
     @PostMapping("/edit/languages")
     public String editLanguages(@Valid @ModelAttribute("languageForm") LanguageForm languageForm, BindingResult bindingResult, Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             prepareLanguagesPage(model, currentProfile);
@@ -256,7 +255,7 @@ public class EditDataController {
 
     @GetMapping("/edit/hobbies")
     public String getEditHobbies(@Value("${profiles.hobby.max}") int maxHobbies, Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         List<Hobby> hobbyList = currentProfile.getHobbies();
         Set<Hobby> hobbies = hobbyService.getAllHobbiesListWithSelected(hobbyList);
         model.addAttribute("maxHobbies", maxHobbies);
@@ -266,14 +265,14 @@ public class EditDataController {
 
     @PostMapping("/edit/hobbies")
     public String editHobbies(@RequestParam("hobbies") List<String> hobbies) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         editDataService.updateHobbies(currentProfile, hobbies);
         return "redirect:/edit/info";
     }
 
     @GetMapping("/edit/info")
     public String getEditInfo(Model model) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         InfoForm infoForm = new InfoForm(currentProfile.getInfo());
         model.addAttribute("infoForm", infoForm);
         return "edit/info";
@@ -281,7 +280,7 @@ public class EditDataController {
 
     @PostMapping("/edit/info")
     public String editInfo(@Valid @ModelAttribute("infoForm") InfoForm infoForm, BindingResult bindingResult) {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "edit/info";
@@ -309,7 +308,7 @@ public class EditDataController {
 
     @RequestMapping(value = "/my-profile")
     public String getMyProfile() {
-        Profile currentProfile = editDataService.getCurrentProfile();
+        Profile currentProfile = searchService.getCurrentProfile();
         return "redirect:/" + currentProfile.getUid();
     }
 

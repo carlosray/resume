@@ -1,9 +1,11 @@
 package com.resume.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.resume.annotation.constraints.Adulthood;
 import com.resume.annotation.constraints.EnglishLanguage;
 import com.resume.annotation.constraints.PasswordStrengthConstraint;
 import lombok.*;
+import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -28,6 +30,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Entity
 @Table(name="profile")
+@Document(indexName = "profile")
 public class Profile implements Serializable {
     private static final long serialVersionUID = 4902501196394768938L;
 
@@ -35,67 +38,98 @@ public class Profile implements Serializable {
     @SequenceGenerator(name="profile_generator", sequenceName = "profile_id_seq", allocationSize=1)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="profile_generator")
     private Long id;
+
     @OneToOne(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JsonIgnore
     private ProfileRestore profileRestore;
+
     @Column(unique = true)
     private String uid;
+
     @Column(name = "first_name", nullable = false, length = 50)
     @EnglishLanguage
     private String firstName;
+
     @Column(name = "last_name", nullable = false, length = 50)
     @EnglishLanguage
     private String lastName;
+
     @NotNull
     @Past
     @Column(name = "birth_day")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date birthDay;
+
     @Transient
     @Adulthood
     private Integer age;
+
     @Column(length = 60)
     @EnglishLanguage
     private String country;
+
     @Column(length = 100)
     @EnglishLanguage
     private String city;
+
     @Column(length = 2147483647)
     @EnglishLanguage
     private String objective;
+
     @Column(length = 2147483647)
     private String summary;
+
     @Column(name = "large_photo")
+    @JsonIgnore
     private String largePhoto;
+
     @Column(name = "small_photo")
     private String smallPhoto;
+
     @Column(length = 2147483647)
     private String info;
+
     @Column
     @PasswordStrengthConstraint
+    @JsonIgnore
     private String password;
+
     @Column
+    @JsonIgnore
     private boolean completed;
+
     @Column(insertable = false)
     //@Temporal(TemporalType.TIMESTAMP)
+    @JsonIgnore
     private Timestamp created;
+
     @Embedded
+    @JsonIgnore
     private ContactsProfile contactsProfile;
 
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Skill> skills;
+
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Language> languages;
+
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JsonIgnore
     private List<Hobby> hobbies;
+
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Certificate> certificates;
+
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Course> courses;
+
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Practic> practics;
+
     @OneToMany(mappedBy = "profile", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @OrderBy("finishYear DESC, beginYear DESC, id DESC")
+    @JsonIgnore
     private List<Education> educations;
 
     @PostLoad
