@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -298,11 +299,12 @@ public class EditDataController {
 
     @PostMapping("/edit/password")
     public String editPassword(@Valid @ModelAttribute("passwordForm") PasswordForm passwordForm, BindingResult bindingResult) {
+        Profile currentProfile = searchService.getCurrentProfile();
         if (bindingResult.hasErrors()) {
             debugBindingMessage(bindingResult);
             return "password";
         }
-        //TODO password hashing and saving
+        editDataService.updatePassword(currentProfile, passwordForm);
         return "redirect:/my-profile";
     }
 

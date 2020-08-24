@@ -8,6 +8,8 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.servlet.ServletContext;
@@ -26,6 +28,10 @@ public class ResumeWebApplicationInitializer implements WebApplicationInitialize
 
     private void registerFilters(ServletContext servletContext, WebApplicationContext context) {
         servletContext.addFilter(AppFilter.class.getName(), context.getBean(AppFilter.class))
+                .addMappingForUrlPatterns(null, true, "/*");
+        servletContext.addFilter(RequestContextFilter.class.getName(), new RequestContextFilter())
+                .addMappingForUrlPatterns(null, true, "/*");
+        servletContext.addFilter("springSecurityFilterChain", new DelegatingFilterProxy("springSecurityFilterChain"))
                 .addMappingForUrlPatterns(null, true, "/*");
         servletContext.addFilter(CharacterEncodingFilter.class.getName(), new CharacterEncodingFilter("UTF-8", true))
                 .addMappingForUrlPatterns(null, true, "/*");

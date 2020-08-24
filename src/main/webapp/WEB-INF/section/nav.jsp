@@ -1,5 +1,7 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <nav>
+    <sec:authorize access="isAuthenticated()">
     <div class="container-fluid bg-info">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
@@ -14,7 +16,7 @@
 
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                       aria-expanded="false">FULLNAME<span class="caret"></span></a>
+                       aria-expanded="false"><sec:authentication property="principal.fullName"/><span class="caret"></span></a>
                     <ul class="dropdown-menu profile-menu">
                         <li><a href="/my-profile"><i class="fa fa-eye"></i>Мой профиль</a></li>
                         <li><a href="/edit"><i class="fa fa-pencil"></i>Изменить</a></li>
@@ -34,4 +36,5 @@
             </form>
         </div>
     </div>
+    </sec:authorize>
 </nav>

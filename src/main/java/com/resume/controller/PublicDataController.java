@@ -9,10 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
@@ -75,7 +78,15 @@ public class PublicDataController {
 
     @GetMapping("/sign-in")
     public String signIn() {
-        return "signIn";
+        return "sign-in";
+    }
+
+    @GetMapping("/sign-in-failed")
+    public String signInFailed(HttpSession session) {
+        if (session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION") == null) {
+            return "redirect:/sign-in";
+        }
+        return "sign-in";
     }
 
     @GetMapping("/sign-up")

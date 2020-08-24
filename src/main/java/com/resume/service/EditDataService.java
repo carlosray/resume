@@ -19,4 +19,5 @@ public interface EditDataService {
     void updateEducation(Profile updatableProfile, EducationForm educationForm);
     void updatePractics(Profile updatableProfile, PracticsForm practicsForm);
     void updateInfo(Profile updatableProfile, InfoForm infoForm);
+    void updatePassword(Profile updatableProfile, PasswordForm passwordForm);
 }

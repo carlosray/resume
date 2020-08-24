@@ -10,6 +10,7 @@ import com.resume.service.ImageService;
 import com.resume.service.ImageType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,13 +27,15 @@ public class EditDataServiceImpl implements EditDataService {
     private final ImageService imageService;
     private final HobbyService hobbyService;
     private final ApplicationEventPublisher publisher;
+    private final PasswordEncoder encoder;
 
     @Autowired
-    public EditDataServiceImpl(ImageService imageService, ProfileRepository profileRepository, HobbyService hobbyService, ApplicationEventPublisher publisher) {
+    public EditDataServiceImpl(ImageService imageService, ProfileRepository profileRepository, HobbyService hobbyService, ApplicationEventPublisher publisher, PasswordEncoder encoder) {
         this.imageService = imageService;
         this.profileRepository = profileRepository;
         this.hobbyService = hobbyService;
         this.publisher = publisher;
+        this.encoder = encoder;
     }
 
     @Override
@@ -158,6 +161,13 @@ public class EditDataServiceImpl implements EditDataService {
     public void updateInfo(Profile updatableProfile, InfoForm infoForm) {
         String info = infoForm.getInfo();
         updatableProfile.setInfo(info);
+        profileRepository.save(updatableProfile);
+    }
+
+    @Override
+    public void updatePassword(Profile updatableProfile, PasswordForm passwordForm) {
+        String passwordEncoded = encoder.encode(passwordForm.getPassword());
+        updatableProfile.setPassword(passwordEncoded);
         profileRepository.save(updatableProfile);
     }
 }
